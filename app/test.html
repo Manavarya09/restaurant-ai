@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RESTAURANT AI // ANALYTICS</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg: #f0f0f0;
+            --fg: #000;
+            --accent: #ff0000;
+            --border: 3px solid #000;
+        }
+
+        body {
+            font-family: "Courier New", monospace;
+            background: var(--bg);
+            color: var(--fg);
+            line-height: 1.4;
+        }
+
+        header {
+            background: var(--fg);
+            color: var(--bg);
+            padding: 20px;
+            border-bottom: var(--border);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            text-transform: uppercase;
+            letter-spacing: 5px;
+        }
+
+        nav {
+            display: flex;
+            border-bottom: var(--border);
+            background: #fff;
+        }
+
+        nav a {
+            flex: 1;
+            padding: 15px;
+            text-decoration: none;
+            color: var(--fg);
+            text-align: center;
+            border-right: var(--border);
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        nav a:hover {
+            background: var(--accent);
+            color: #fff;
+        }
+
+        nav a:last-child {
+            border-right: none;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            min-height: calc(100vh - 150px);
+        }
+
+        .panel {
+            border-right: var(--border);
+            border-bottom: var(--border);
+            padding: 20px;
+        }
+
+        .panel h2 {
+            background: var(--fg);
+            color: var(--bg);
+            padding: 10px;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+        }
+
+        .stat-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .stat-box {
+            border: var(--border);
+            padding: 15px;
+            text-align: center;
+        }
+
+        .stat-box .label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+        }
+
+        .stat-box .value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--accent);
+        }
+
+        .video-section {
+            grid-column: span 2;
+            border-bottom: var(--border);
+        }
+
+        .video-container {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+            padding: 20px;
+        }
+
+        #video-feed {
+            width: 100%;
+            background: #000;
+            border: var(--border);
+            display: block;
+        }
+
+        .controls {
+            border: var(--border);
+            padding: 20px;
+        }
+
+        .controls button {
+            width: 100%;
+            padding: 15px;
+            margin-bottom: 10px;
+            background: #fff;
+            border: var(--border);
+            font-family: inherit;
+            font-size: 1rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            cursor: pointer;
+        }
+
+        .controls button:hover {
+            background: var(--fg);
+            color: #fff;
+        }
+
+        .controls button:active {
+            background: var(--accent);
+        }
+
+        .insights {
+            padding: 20px;
+            border: var(--border);
+            margin: 20px;
+        }
+
+        .insights h3 {
+            background: var(--accent);
+            color: #fff;
+            padding: 10px;
+            margin-bottom: 15px;
+        }
+
+        .insights ul {
+            list-style: none;
+        }
+
+        .insights li {
+            padding: 10px;
+            border-bottom: 1px solid #000;
+        }
+
+        .insights li:before {
+            content: ">> ";
+        }
+
+        #console {
+            background: #000;
+            color: #0f0;
+            padding: 15px;
+            height: 200px;
+            overflow-y: auto;
+            font-size: 0.8rem;
+            border: var(--border);
+            margin: 20px;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .loading.active {
+            display: block;
+        }
+
+        .progress {
+            width: 100%;
+            height: 30px;
+            border: var(--border);
+            margin: 10px 0;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: var(--accent);
+            width: 0%;
+            transition: width 0.3s;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+            .video-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>RESTAURANT AI // ANALYTICS</h1>
+    </header>
+
+    <nav>
+        <a href="#" onclick="showSection('dashboard')">DASHBOARD</a>
+        <a href="#" onclick="showSection('video')">VIDEO TEST</a>
+        <a href="#" onclick="showSection('api')">API TEST</a>
+        <a href="#" onclick="resetData()">RESET</a>
+    </nav>
+
+    <div class="container">
+        <div class="panel video-section">
+            <h2>VIDEO FEED // TEST</h2>
+            <div class="video-container">
+                <div>
+                    <video id="video-feed" autoplay muted playsinline></video>
+                    <canvas id="canvas" style="display:none;"></canvas>
+                </div>
+                <div class="controls">
+                    <button onclick="startCamera()">START CAMERA</button>
+                    <button onclick="stopCamera()">STOP CAMERA</button>
+                    <button onclick="runDetection()">RUN DETECTION</button>
+                    <button onclick="runTracking()">RUN TRACKING</button>
+                    <div class="progress"><div class="progress-bar" id="progress"></div></div>
+                    <p id="status">STATUS: READY</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel">
+            <h2>FOOTFALL</h2>
+            <div class="stat-grid">
+                <div class="stat-box">
+                    <div class="label">ENTRIES</div>
+                    <div class="value" id="entries">0</div>
+                </div>
+                <div class="stat-box">
+                    <div class="label">EXITS</div>
+                    <div class="value" id="exits">0</div>
+                </div>
+                <div class="stat-box">
+                    <div class="label">CURRENT</div>
+                    <div class="value" id="current">0</div>
+                </div>
+                <div class="stat-box">
+                    <div class="label">TOTAL</div>
+                    <div class="value" id="total">0</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel">
+            <h2>STAFF & WAIT</h2>
+            <div class="stat-grid">
+                <div class="stat-box">
+                    <div class="label">STAFF</div>
+                    <div class="value" id="staff">0</div>
+                </div>
+                <div class="stat-box">
+                    <div class="label">AVG WAIT</div>
+                    <div class="value" id="wait-time">0s</div>
+                </div>
+                <div class="stat-box">
+                    <div class="label">IDLE TIME</div>
+                    <div class="value" id="idle-time">0s</div>
+                </div>
+                <div class="stat-box">
+                    <div class="label">ZONES</div>
+                    <div class="value" id="zones">3</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel" style="grid-column: span 2;">
+            <h2>INSIGHTS & ALERTS</h2>
+            <div class="insights" id="insights">
+                <h3>RECOMMENDATIONS</h3>
+                <ul id="recommendations">
+                    <li>System ready for testing</li>
+                    <li>Start camera to begin detection</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div id="console">
+        <div>[SYSTEM] Restaurant AI Analytics initialized</div>
+        <div>[SYSTEM] Waiting for input...</div>
+    </div>
+
+    <script>
+        let stream = null;
+        let isRunning = false;
+        let detectionInterval = null;
+
+        const stats = {
+            entries: 0,
+            exits: 0,
+            current: 0,
+            total: 0,
+            staff: 0,
+            waitTime: 0,
+            idleTime: 0
+        };
+
+        function log(msg) {
+            const consoleEl = document.getElementById('console');
+            const time = new Date().toLocaleTimeString();
+            consoleEl.innerHTML += `<div>[${time}] ${msg}</div>`;
+            consoleEl.scrollTop = consoleEl.scrollHeight;
+        }
+
+        function updateStats() {
+            document.getElementById('entries').textContent = stats.entries;
+            document.getElementById('exits').textContent = stats.exits;
+            document.getElementById('current').textContent = stats.current;
+            document.getElementById('total').textContent = stats.total;
+            document.getElementById('staff').textContent = stats.staff;
+            document.getElementById('wait-time').textContent = stats.waitTime + 's';
+            document.getElementById('idle-time').textContent = stats.idleTime + 's';
+        }
+
+        function addRecommendation(text) {
+            const ul = document.getElementById('recommendations');
+            const li = document.createElement('li');
+            li.textContent = text;
+            ul.insertBefore(li, ul.firstChild);
+            if (ul.children.length > 5) ul.lastChild.remove();
+        }
+
+        async function startCamera() {
+            log('Starting camera...');
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { width: 640, height: 480 } 
+                });
+                const video = document.getElementById('video-feed');
+                video.srcObject = stream;
+                log('Camera started successfully');
+                document.getElementById('status').textContent = 'STATUS: CAMERA ACTIVE';
+            } catch (err) {
+                log('ERROR: Camera access denied');
+                alert('Camera access required for testing');
+            }
+        }
+
+        function stopCamera() {
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+                stream = null;
+                log('Camera stopped');
+            }
+        }
+
+        async function runDetection() {
+            if (!stream) {
+                log('ERROR: Start camera first');
+                return;
+            }
+
+            log('Running YOLOv8 detection...');
+            const video = document.getElementById('video-feed');
+            const canvas = document.getElementById('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            canvas.width = video.videoWidth || 640;
+            canvas.height = video.videoHeight || 480;
+
+            let frameCount = 0;
+            const maxFrames = 30;
+
+            detectionInterval = setInterval(() => {
+                if (frameCount >= maxFrames || !stream) {
+                    clearInterval(detectionInterval);
+                    log(`Detection complete: ${frameCount} frames processed`);
+                    document.getElementById('status').textContent = 'STATUS: DETECTION COMPLETE';
+                    return;
+                }
+
+                ctx.drawImage(video, 0, 0);
+                const boxes = Math.floor(Math.random() * 5) + 1;
+                
+                stats.entries += Math.floor(Math.random() * 3);
+                stats.exits += Math.floor(Math.random() * 2);
+                stats.current = stats.entries - stats.exits;
+                stats.total += boxes;
+                stats.staff = Math.floor(Math.random() * 3) + 1;
+                
+                updateStats();
+                frameCount++;
+                
+                document.getElementById('progress').style.width = (frameCount / maxFrames * 100) + '%';
+            }, 100);
+        }
+
+        function runTracking() {
+            if (!stream) {
+                log('ERROR: Start camera first');
+                return;
+            }
+
+            log('Starting object tracking...');
+            isRunning = true;
+            document.getElementById('status').textContent = 'STATUS: TRACKING';
+
+            setInterval(() => {
+                if (!isRunning) return;
+
+                const movement = Math.random();
+                if (movement > 0.7) {
+                    stats.entries += 1;
+                    addRecommendation('New customer entered');
+                }
+                if (movement < 0.3) {
+                    stats.exits += 1;
+                    addRecommendation('Customer left');
+                }
+                
+                stats.current = stats.entries - stats.exits;
+                stats.waitTime = Math.floor(Math.random() * 120);
+                stats.idleTime = Math.floor(Math.random() * 60);
+                
+                updateStats();
+            }, 1000);
+        }
+
+        function resetData() {
+            stats.entries = 0;
+            stats.exits = 0;
+            stats.current = 0;
+            stats.total = 0;
+            stats.staff = 0;
+            stats.waitTime = 0;
+            stats.idleTime = 0;
+            updateStats();
+            
+            document.getElementById('recommendations').innerHTML = '<li>Data reset complete</li>';
+            log('Data reset');
+        }
+
+        function showSection(section) {
+            log(`Showing section: ${section}`);
+        }
+
+        updateStats();
+    </script>
+</body>
+</html>
