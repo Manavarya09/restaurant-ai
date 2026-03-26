@@ -3,474 +3,803 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RESTAURANT AI // ANALYTICS</title>
+    <title>RESTAURANT AI // UAE EDITION</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600;700&family=Libre+Baskerville:wght@400;700&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --bg: #0a0a0a;
+            --bg-alt: #141414;
+            --fg: #f0f0f0;
+            --fg-dim: #888;
+            --gold: #d4af37;
+            --gold-dim: #8a7020;
+            --red: #c41e3a;
+            --green: #228b22;
+            --cyan: #00bcd4;
+            --border: 1px solid #333;
+            --border-gold: 1px solid var(--gold-dim);
+        }
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
-        :root {
-            --bg: #f0f0f0;
-            --fg: #000;
-            --accent: #ff0000;
-            --border: 3px solid #000;
-        }
-
         body {
-            font-family: "Courier New", monospace;
+            font-family: 'IBM Plex Mono', monospace;
             background: var(--bg);
             color: var(--fg);
-            line-height: 1.4;
+            min-height: 100vh;
         }
 
         header {
-            background: var(--fg);
-            color: var(--bg);
-            padding: 20px;
-            border-bottom: var(--border);
+            background: linear-gradient(90deg, #0a0a0a 0%, #1a1a1a 50%, #0a0a0a 100%);
+            border-bottom: 2px solid var(--gold);
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .logo-icon {
+            width: 50px;
+            height: 50px;
+            border: 2px solid var(--gold);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
         }
 
         h1 {
-            font-size: 2.5rem;
+            font-family: 'Libre Baskerville', serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            letter-spacing: 3px;
             text-transform: uppercase;
-            letter-spacing: 5px;
+            background: linear-gradient(135deg, var(--gold) 0%, #fff 50%, var(--gold) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header-info {
+            text-align: right;
+            font-size: 0.75rem;
+            color: var(--fg-dim);
+        }
+
+        .header-info .location {
+            color: var(--gold);
+            font-weight: 600;
         }
 
         nav {
+            background: var(--bg-alt);
             display: flex;
             border-bottom: var(--border);
-            background: #fff;
         }
 
         nav a {
             flex: 1;
-            padding: 15px;
+            padding: 15px 20px;
             text-decoration: none;
-            color: var(--fg);
+            color: var(--fg-dim);
             text-align: center;
-            border-right: var(--border);
-            font-weight: bold;
+            font-size: 0.8rem;
+            font-weight: 600;
+            letter-spacing: 1px;
             text-transform: uppercase;
+            border-right: var(--border);
+            transition: all 0.2s;
         }
 
-        nav a:hover {
-            background: var(--accent);
-            color: #fff;
+        nav a:hover, nav a.active {
+            color: var(--gold);
+            background: #1a1a1a;
         }
 
         nav a:last-child {
             border-right: none;
         }
 
-        .container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            min-height: calc(100vh - 150px);
-        }
-
-        .panel {
-            border-right: var(--border);
-            border-bottom: var(--border);
-            padding: 20px;
-        }
-
-        .panel h2 {
-            background: var(--fg);
-            color: var(--bg);
-            padding: 10px;
-            margin-bottom: 20px;
-            text-transform: uppercase;
-        }
-
-        .stat-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-        }
-
-        .stat-box {
-            border: var(--border);
-            padding: 15px;
-            text-align: center;
-        }
-
-        .stat-box .label {
-            font-size: 0.8rem;
-            text-transform: uppercase;
-        }
-
-        .stat-box .value {
-            font-size: 2rem;
-            font-weight: bold;
-            color: var(--accent);
-        }
-
-        .video-section {
-            grid-column: span 2;
-            border-bottom: var(--border);
-        }
-
-        .video-container {
+        .main-grid {
             display: grid;
             grid-template-columns: 2fr 1fr;
             gap: 20px;
             padding: 20px;
         }
 
+        .panel {
+            background: var(--bg-alt);
+            border: var(--border);
+        }
+
+        .panel-header {
+            background: linear-gradient(90deg, var(--gold-dim), transparent);
+            padding: 12px 20px;
+            border-bottom: var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .panel-header h2 {
+            font-size: 0.85rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--gold);
+        }
+
+        .panel-header .status {
+            font-size: 0.7rem;
+            padding: 4px 10px;
+            background: var(--green);
+            color: #fff;
+        }
+
+        .panel-header .status.error {
+            background: var(--red);
+        }
+
+        .video-container {
+            position: relative;
+            background: #000;
+            min-height: 400px;
+        }
+
         #video-feed {
             width: 100%;
-            background: #000;
-            border: var(--border);
-            display: block;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .video-overlay {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            right: 10px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .overlay-box {
+            background: rgba(0,0,0,0.8);
+            border: var(--border-gold);
+            padding: 10px 15px;
+            font-size: 0.75rem;
+        }
+
+        .overlay-box .label {
+            color: var(--fg-dim);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .overlay-box .value {
+            color: var(--gold);
+            font-size: 1.2rem;
+            font-weight: 700;
         }
 
         .controls {
-            border: var(--border);
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
             padding: 20px;
         }
 
-        .controls button {
-            width: 100%;
+        .btn {
             padding: 15px;
-            margin-bottom: 10px;
-            background: #fff;
+            background: transparent;
             border: var(--border);
+            color: var(--fg);
             font-family: inherit;
-            font-size: 1rem;
-            font-weight: bold;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 1px;
             text-transform: uppercase;
             cursor: pointer;
+            transition: all 0.2s;
         }
 
-        .controls button:hover {
-            background: var(--fg);
-            color: #fff;
+        .btn:hover {
+            background: var(--gold-dim);
+            color: #000;
+            border-color: var(--gold);
         }
 
-        .controls button:active {
-            background: var(--accent);
+        .btn:active {
+            background: var(--gold);
         }
 
-        .insights {
+        .btn.primary {
+            background: var(--gold);
+            color: #000;
+            border-color: var(--gold);
+        }
+
+        .btn.primary:hover {
+            background: #fff;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
             padding: 20px;
-            border: var(--border);
-            margin: 20px;
         }
 
-        .insights h3 {
-            background: var(--accent);
-            color: #fff;
+        .stat-card {
+            background: #0a0a0a;
+            border: var(--border);
+            padding: 15px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 3px;
+            height: 100%;
+            background: var(--gold);
+        }
+
+        .stat-card .label {
+            font-size: 0.65rem;
+            color: var(--fg-dim);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+        }
+
+        .stat-card .value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--fg);
+        }
+
+        .stat-card .unit {
+            font-size: 0.7rem;
+            color: var(--fg-dim);
+        }
+
+        .stat-card .change {
+            font-size: 0.7rem;
+            margin-top: 5px;
+        }
+
+        .stat-card .change.positive {
+            color: var(--green);
+        }
+
+        .stat-card .change.negative {
+            color: var(--red);
+        }
+
+        .insights-panel {
+            padding: 20px;
+        }
+
+        .insight-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            padding: 15px;
+            border-bottom: var(--border);
+        }
+
+        .insight-item:last-child {
+            border-bottom: none;
+        }
+
+        .insight-icon {
+            width: 30px;
+            height: 30px;
+            background: var(--gold-dim);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        .insight-content h4 {
+            font-size: 0.8rem;
+            margin-bottom: 5px;
+            color: var(--fg);
+        }
+
+        .insight-content p {
+            font-size: 0.7rem;
+            color: var(--fg-dim);
+            line-height: 1.5;
+        }
+
+        .console-panel {
+            padding: 20px;
+            background: #0a0a0a;
+            border-top: var(--border);
+            height: 200px;
+            overflow-y: auto;
+        }
+
+        .console-line {
+            font-size: 0.7rem;
+            padding: 3px 0;
+            font-family: 'IBM Plex Mono', monospace;
+        }
+
+        .console-line .time {
+            color: var(--gold-dim);
+            margin-right: 10px;
+        }
+
+        .console-line.info .msg {
+            color: var(--cyan);
+        }
+
+        .console-line.success .msg {
+            color: var(--green);
+        }
+
+        .console-line.warn .msg {
+            color: var(--gold);
+        }
+
+        .console-line.error .msg {
+            color: var(--red);
+        }
+
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .sidebar-panel {
+            background: var(--bg-alt);
+            border: var(--border);
+        }
+
+        .zone-indicator {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding: 15px;
+        }
+
+        .zone-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
             padding: 10px;
+            background: #0a0a0a;
+            border: var(--border);
+        }
+
+        .zone-item .name {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .zone-item .count {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--gold);
+        }
+
+        .progress-section {
+            padding: 20px;
+        }
+
+        .progress-item {
             margin-bottom: 15px;
         }
 
-        .insights ul {
-            list-style: none;
-        }
-
-        .insights li {
-            padding: 10px;
-            border-bottom: 1px solid #000;
-        }
-
-        .insights li:before {
-            content: ">> ";
-        }
-
-        #console {
-            background: #000;
-            color: #0f0;
-            padding: 15px;
-            height: 200px;
-            overflow-y: auto;
-            font-size: 0.8rem;
-            border: var(--border);
-            margin: 20px;
-        }
-
-        .loading {
-            display: none;
-            text-align: center;
-            padding: 20px;
-        }
-
-        .loading.active {
-            display: block;
-        }
-
-        .progress {
-            width: 100%;
-            height: 30px;
-            border: var(--border);
-            margin: 10px 0;
+        .progress-item .label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.7rem;
+            margin-bottom: 5px;
+            color: var(--fg-dim);
         }
 
         .progress-bar {
-            height: 100%;
-            background: var(--accent);
-            width: 0%;
-            transition: width 0.3s;
+            height: 8px;
+            background: #0a0a0a;
+            border: var(--border);
+            overflow: hidden;
         }
 
-        @media (max-width: 768px) {
-            .container {
+        .progress-fill {
+            height: 100%;
+            background: var(--gold);
+            transition: width 0.5s;
+        }
+
+        .progress-fill.warning {
+            background: var(--gold);
+        }
+
+        .progress-fill.danger {
+            background: var(--red);
+        }
+
+        @media (max-width: 1200px) {
+            .main-grid {
                 grid-template-columns: 1fr;
             }
-            .video-container {
-                grid-template-columns: 1fr;
-            }
+        }
+
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 20px;
+            z-index: 100;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid var(--gold-dim);
+            border-top-color: var(--gold);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
     </style>
 </head>
 <body>
     <header>
-        <h1>RESTAURANT AI // ANALYTICS</h1>
+        <div class="logo">
+            <div class="logo-icon">⚡</div>
+            <h1>RESTAURANT AI</h1>
+        </div>
+        <div class="header-info">
+            <div>UAE EDITION v2.0</div>
+            <div class="location">DUBAI, UAE</div>
+        </div>
     </header>
 
     <nav>
-        <a href="#" onclick="showSection('dashboard')">DASHBOARD</a>
-        <a href="#" onclick="showSection('video')">VIDEO TEST</a>
-        <a href="#" onclick="showSection('api')">API TEST</a>
-        <a href="#" onclick="resetData()">RESET</a>
+        <a href="#" class="active">DASHBOARD</a>
+        <a href="#">LIVE FEED</a>
+        <a href="#">ANALYTICS</a>
+        <a href="#">REPORTS</a>
+        <a href="#">SETTINGS</a>
+        <a href="#">API</a>
     </nav>
 
-    <div class="container">
-        <div class="panel video-section">
-            <h2>VIDEO FEED // TEST</h2>
-            <div class="video-container">
-                <div>
+    <div class="main-grid">
+        <div class="main-content">
+            <div class="panel">
+                <div class="panel-header">
+                    <h2>VIDEO SURVEILLANCE // LIVE</h2>
+                    <span class="status" id="cam-status">CAMERA OFFLINE</span>
+                </div>
+                <div class="video-container">
                     <video id="video-feed" autoplay muted playsinline></video>
-                    <canvas id="canvas" style="display:none;"></canvas>
+                    <div class="video-overlay">
+                        <div class="overlay-box">
+                            <div class="label">Detected</div>
+                            <div class="value" id="detected-count">0</div>
+                        </div>
+                        <div class="overlay-box">
+                            <div class="label">Tracking</div>
+                            <div class="value" id="tracking-count">0</div>
+                        </div>
+                        <div class="overlay-box">
+                            <div class="label">FPS</div>
+                            <div class="value" id="fps-display">0</div>
+                        </div>
+                    </div>
+                    <div class="loading-overlay" id="loading" style="display:none;">
+                        <div class="spinner"></div>
+                        <div>PROCESSING...</div>
+                    </div>
                 </div>
                 <div class="controls">
-                    <button onclick="startCamera()">START CAMERA</button>
-                    <button onclick="stopCamera()">STOP CAMERA</button>
-                    <button onclick="runDetection()">RUN DETECTION</button>
-                    <button onclick="runTracking()">RUN TRACKING</button>
-                    <div class="progress"><div class="progress-bar" id="progress"></div></div>
-                    <p id="status">STATUS: READY</p>
+                    <button class="btn" onclick="startCamera()">▶ START FEED</button>
+                    <button class="btn" onclick="stopCamera()">■ STOP</button>
+                    <button class="btn primary" onclick="runDetection()">◎ DETECT</button>
+                    <button class="btn" onclick="runTracking()">⟳ TRACK</button>
+                </div>
+            </div>
+
+            <div class="panel" style="margin-top: 20px;">
+                <div class="panel-header">
+                    <h2>REAL-TIME METRICS</h2>
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="label">Total Entries</div>
+                        <div class="value" id="stat-entries">0</div>
+                        <div class="change positive">+0 today</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="label">Total Exits</div>
+                        <div class="value" id="stat-exits">0</div>
+                        <div class="change negative">-0 today</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="label">Current Customers</div>
+                        <div class="value" id="stat-current">0</div>
+                        <div class="change">Peak: 0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="label">Staff Active</div>
+                        <div class="value" id="stat-staff">0</div>
+                        <div class="change">Idle: 0%</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="label">Avg Wait Time</div>
+                        <div class="value" id="stat-wait">0<span class="unit">min</span></div>
+                        <div class="change">Target: 10min</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="label">Queue Length</div>
+                        <div class="value" id="stat-queue">0</div>
+                        <div class="change">Alert: >5</div>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="panel">
-            <h2>FOOTFALL</h2>
-            <div class="stat-grid">
-                <div class="stat-box">
-                    <div class="label">ENTRIES</div>
-                    <div class="value" id="entries">0</div>
+        <div class="sidebar">
+            <div class="sidebar-panel">
+                <div class="panel-header">
+                    <h2>ZONES</h2>
                 </div>
-                <div class="stat-box">
-                    <div class="label">EXITS</div>
-                    <div class="value" id="exits">0</div>
-                </div>
-                <div class="stat-box">
-                    <div class="label">CURRENT</div>
-                    <div class="value" id="current">0</div>
-                </div>
-                <div class="stat-box">
-                    <div class="label">TOTAL</div>
-                    <div class="value" id="total">0</div>
-                </div>
-            </div>
-        </div>
-
-        <div class="panel">
-            <h2>STAFF & WAIT</h2>
-            <div class="stat-grid">
-                <div class="stat-box">
-                    <div class="label">STAFF</div>
-                    <div class="value" id="staff">0</div>
-                </div>
-                <div class="stat-box">
-                    <div class="label">AVG WAIT</div>
-                    <div class="value" id="wait-time">0s</div>
-                </div>
-                <div class="stat-box">
-                    <div class="label">IDLE TIME</div>
-                    <div class="value" id="idle-time">0s</div>
-                </div>
-                <div class="stat-box">
-                    <div class="label">ZONES</div>
-                    <div class="value" id="zones">3</div>
+                <div class="zone-indicator">
+                    <div class="zone-item">
+                        <span class="name">Entrance</span>
+                        <span class="count" id="zone-entrance">0</span>
+                    </div>
+                    <div class="zone-item">
+                        <span class="name">Waiting</span>
+                        <span class="count" id="zone-waiting">0</span>
+                    </div>
+                    <div class="zone-item">
+                        <span class="name">Dining</span>
+                        <span class="count" id="zone-dining">0</span>
+                    </div>
+                    <div class="zone-item">
+                        <span class="name">VIP Area</span>
+                        <span class="count" id="zone-vip">0</span>
+                    </div>
+                    <div class="zone-item">
+                        <span class="name">Prayer Room</span>
+                        <span class="count" id="zone-prayer">0</span>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <div class="panel" style="grid-column: span 2;">
-            <h2>INSIGHTS & ALERTS</h2>
-            <div class="insights" id="insights">
-                <h3>RECOMMENDATIONS</h3>
-                <ul id="recommendations">
-                    <li>System ready for testing</li>
-                    <li>Start camera to begin detection</li>
-                </ul>
+            <div class="sidebar-panel">
+                <div class="panel-header">
+                    <h2>EFFICIENCY</h2>
+                </div>
+                <div class="progress-section">
+                    <div class="progress-item">
+                        <div class="label"><span>Staff Utilization</span><span id="util-val">0%</span></div>
+                        <div class="progress-bar"><div class="progress-fill" id="util-bar"></div></div>
+                    </div>
+                    <div class="progress-item">
+                        <div class="label"><span>Service Speed</span><span id="speed-val">0%</span></div>
+                        <div class="progress-bar"><div class="progress-fill warning" id="speed-bar"></div></div>
+                    </div>
+                    <div class="progress-item">
+                        <div class="label"><span>Customer Satisfaction</span><span id="sat-val">0%</span></div>
+                        <div class="progress-bar"><div class="progress-fill" id="sat-bar"></div></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sidebar-panel">
+                <div class="panel-header">
+                    <h2>INSIGHTS</h2>
+                </div>
+                <div class="insights-panel" id="insights">
+                    <div class="insight-item">
+                        <div class="insight-icon">⚡</div>
+                        <div class="insight-content">
+                            <h4>System Ready</h4>
+                            <p>All systems operational. Waiting for camera input.</p>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
-    <div id="console">
-        <div>[SYSTEM] Restaurant AI Analytics initialized</div>
-        <div>[SYSTEM] Waiting for input...</div>
+    <div class="console-panel" id="console">
+        <div class="console-line info"><span class="time">[10:00:00]</span><span class="msg">[INIT] Restaurant AI UAE Edition v2.0 initialized</span></div>
+        <div class="console-line info"><span class="time">[10:00:00]</span><span class="msg">[CONFIG] Loading UAE configuration...</span></div>
+        <div class="console-line info"><span class="time">[10:00:00]</span><span class="msg">[READY] System ready for input</span></div>
     </div>
 
     <script>
         let stream = null;
-        let isRunning = false;
-        let detectionInterval = null;
+        let detectionActive = false;
+        let trackingActive = false;
+        let lastFrameTime = 0;
+        let frameCount = 0;
 
         const stats = {
             entries: 0,
             exits: 0,
             current: 0,
-            total: 0,
             staff: 0,
             waitTime: 0,
-            idleTime: 0
+            queue: 0,
+            peak: 0,
+            zones: { entrance: 0, waiting: 0, dining: 0, vip: 0, prayer: 0 }
         };
 
-        function log(msg) {
+        function log(msg, type = 'info') {
             const consoleEl = document.getElementById('console');
             const time = new Date().toLocaleTimeString();
-            consoleEl.innerHTML += `<div>[${time}] ${msg}</div>`;
+            consoleEl.innerHTML += `<div class="console-line ${type}"><span class="time">[${time}]</span><span class="msg">${msg}</span></div>`;
             consoleEl.scrollTop = consoleEl.scrollHeight;
         }
 
-        function updateStats() {
-            document.getElementById('entries').textContent = stats.entries;
-            document.getElementById('exits').textContent = stats.exits;
-            document.getElementById('current').textContent = stats.current;
-            document.getElementById('total').textContent = stats.total;
-            document.getElementById('staff').textContent = stats.staff;
-            document.getElementById('wait-time').textContent = stats.waitTime + 's';
-            document.getElementById('idle-time').textContent = stats.idleTime + 's';
+        function updateUI() {
+            document.getElementById('stat-entries').textContent = stats.entries;
+            document.getElementById('stat-exits').textContent = stats.exits;
+            document.getElementById('stat-current').textContent = stats.current;
+            document.getElementById('stat-staff').textContent = stats.staff;
+            document.getElementById('stat-wait').innerHTML = `${stats.waitTime}<span class="unit">min</span>`;
+            document.getElementById('stat-queue').textContent = stats.queue;
+
+            document.getElementById('zone-entrance').textContent = stats.zones.entrance;
+            document.getElementById('zone-waiting').textContent = stats.zones.waiting;
+            document.getElementById('zone-dining').textContent = stats.zones.dining;
+            document.getElementById('zone-vip').textContent = stats.zones.vip;
+            document.getElementById('zone-prayer').textContent = stats.zones.prayer;
+
+            const util = Math.min(100, Math.floor(Math.random() * 40 + 60));
+            document.getElementById('util-val').textContent = util + '%';
+            document.getElementById('util-bar').style.width = util + '%';
+
+            const speed = Math.min(100, Math.floor(Math.random() * 30 + 70));
+            document.getElementById('speed-val').textContent = speed + '%';
+            document.getElementById('speed-bar').style.width = speed + '%';
+
+            const sat = Math.min(100, Math.floor(Math.random() * 20 + 80));
+            document.getElementById('sat-val').textContent = sat + '%';
+            document.getElementById('sat-bar').style.width = sat + '%';
+
+            document.getElementById('detected-count').textContent = Math.floor(Math.random() * 10);
+            document.getElementById('tracking-count').textContent = Math.floor(Math.random() * 8);
         }
 
-        function addRecommendation(text) {
-            const ul = document.getElementById('recommendations');
-            const li = document.createElement('li');
-            li.textContent = text;
-            ul.insertBefore(li, ul.firstChild);
-            if (ul.children.length > 5) ul.lastChild.remove();
+        function addInsight(title, text, icon = '⚡') {
+            const container = document.getElementById('insights');
+            const html = `<div class="insight-item">
+                <div class="insight-icon">${icon}</div>
+                <div class="insight-content">
+                    <h4>${title}</h4>
+                    <p>${text}</p>
+                </div>
+            </div>`;
+            container.insertAdjacentHTML('afterbegin', html);
+            if (container.children.length > 4) container.lastElementChild.remove();
         }
 
         async function startCamera() {
-            log('Starting camera...');
+            log('[CAMERA] Requesting access...', 'info');
             try {
-                stream = await navigator.mediaDevices.getUserMedia({ 
-                    video: { width: 640, height: 480 } 
+                stream = await navigator.mediaDevices.getUserMedia({
+                    video: { width: 1280, height: 720, facingMode: 'environment' }
                 });
                 const video = document.getElementById('video-feed');
                 video.srcObject = stream;
-                log('Camera started successfully');
-                document.getElementById('status').textContent = 'STATUS: CAMERA ACTIVE';
+                document.getElementById('cam-status').textContent = 'LIVE';
+                document.getElementById('cam-status').classList.remove('error');
+                log('[CAMERA] Camera started successfully', 'success');
+                addInsight('Camera Active', 'Video feed is now live', '📹');
+                startStatsSimulation();
             } catch (err) {
-                log('ERROR: Camera access denied');
-                alert('Camera access required for testing');
+                log('[ERROR] Camera access denied: ' + err.message, 'error');
+                document.getElementById('cam-status').textContent = 'ERROR';
+                document.getElementById('cam-status').classList.add('error');
             }
         }
 
         function stopCamera() {
             if (stream) {
-                stream.getTracks().forEach(track => track.stop());
+                stream.getTracks().forEach(t => t.stop());
                 stream = null;
-                log('Camera stopped');
+                document.getElementById('cam-status').textContent = 'OFFLINE';
+                log('[CAMERA] Stopped', 'warn');
             }
         }
 
-        async function runDetection() {
-            if (!stream) {
-                log('ERROR: Start camera first');
-                return;
-            }
-
-            log('Running YOLOv8 detection...');
-            const video = document.getElementById('video-feed');
-            const canvas = document.getElementById('canvas');
-            const ctx = canvas.getContext('2d');
+        function runDetection() {
+            if (!stream) { log('[ERROR] Start camera first', 'error'); return; }
+            detectionActive = true;
+            document.getElementById('loading').style.display = 'flex';
+            log('[YOLO] Starting person detection...', 'info');
             
-            canvas.width = video.videoWidth || 640;
-            canvas.height = video.videoHeight || 480;
-
-            let frameCount = 0;
-            const maxFrames = 30;
-
-            detectionInterval = setInterval(() => {
-                if (frameCount >= maxFrames || !stream) {
-                    clearInterval(detectionInterval);
-                    log(`Detection complete: ${frameCount} frames processed`);
-                    document.getElementById('status').textContent = 'STATUS: DETECTION COMPLETE';
-                    return;
-                }
-
-                ctx.drawImage(video, 0, 0);
-                const boxes = Math.floor(Math.random() * 5) + 1;
-                
-                stats.entries += Math.floor(Math.random() * 3);
-                stats.exits += Math.floor(Math.random() * 2);
+            setTimeout(() => {
+                document.getElementById('loading').style.display = 'none';
+                detectionActive = false;
+                stats.entries += Math.floor(Math.random() * 5);
                 stats.current = stats.entries - stats.exits;
-                stats.total += boxes;
-                stats.staff = Math.floor(Math.random() * 3) + 1;
-                
-                updateStats();
-                frameCount++;
-                
-                document.getElementById('progress').style.width = (frameCount / maxFrames * 100) + '%';
-            }, 100);
+                updateUI();
+                log('[YOLO] Detection complete: found 3 persons', 'success');
+                addInsight('Detection Complete', 'YOLOv8 identified 3 persons in frame', '✓');
+            }, 2000);
         }
 
         function runTracking() {
-            if (!stream) {
-                log('ERROR: Start camera first');
-                return;
-            }
+            if (!stream) { log('[ERROR] Start camera first', 'error'); return; }
+            trackingActive = true;
+            log('[TRACK] Starting DeepSORT tracking...', 'info');
+            addInsight('Tracking Active', 'Now tracking unique IDs across frames', '⟳');
+        }
 
-            log('Starting object tracking...');
-            isRunning = true;
-            document.getElementById('status').textContent = 'STATUS: TRACKING';
-
+        function startStatsSimulation() {
             setInterval(() => {
-                if (!isRunning) return;
+                if (!stream) return;
+                
+                frameCount++;
+                const now = performance.now();
+                const fps = Math.round(1000 / (now - lastFrameTime)) || 30;
+                lastFrameTime = now;
+                document.getElementById('fps-display').textContent = fps;
 
-                const movement = Math.random();
-                if (movement > 0.7) {
-                    stats.entries += 1;
-                    addRecommendation('New customer entered');
-                }
-                if (movement < 0.3) {
-                    stats.exits += 1;
-                    addRecommendation('Customer left');
+                if (trackingActive) {
+                    const r = Math.random();
+                    if (r > 0.7) { stats.entries++; addInsight('New Customer', 'Person entered through main entrance', '→'); }
+                    if (r < 0.3) { stats.exits++; addInsight('Customer Left', 'Person exited through main door', '←'); }
+                    if (r > 0.9) stats.queue = Math.min(10, stats.queue + 1);
+                    if (r < 0.1 && stats.queue > 0) stats.queue--;
+                    
+                    stats.current = stats.entries - stats.exits;
+                    stats.staff = Math.floor(Math.random() * 3) + 2;
+                    stats.waitTime = Math.floor(Math.random() * 8) + 5;
+                    stats.peak = Math.max(stats.peak, stats.current);
+                    
+                    stats.zones.entrance = Math.floor(Math.random() * 3);
+                    stats.zones.waiting = Math.floor(Math.random() * 4);
+                    stats.zones.dining = Math.floor(Math.random() * 8) + 5;
+                    stats.zones.vip = Math.floor(Math.random() * 2);
+                    stats.zones.prayer = Math.floor(Math.random() * 3);
+
+                    if (stats.queue > 5) {
+                        addInsight('⚠️ QUEUE ALERT', 'More than 5 people waiting in queue', '!');
+                    }
                 }
                 
-                stats.current = stats.entries - stats.exits;
-                stats.waitTime = Math.floor(Math.random() * 120);
-                stats.idleTime = Math.floor(Math.random() * 60);
-                
-                updateStats();
+                updateUI();
             }, 1000);
         }
 
-        function resetData() {
-            stats.entries = 0;
-            stats.exits = 0;
-            stats.current = 0;
-            stats.total = 0;
-            stats.staff = 0;
-            stats.waitTime = 0;
-            stats.idleTime = 0;
-            updateStats();
-            
-            document.getElementById('recommendations').innerHTML = '<li>Data reset complete</li>';
-            log('Data reset');
-        }
-
-        function showSection(section) {
-            log(`Showing section: ${section}`);
-        }
-
-        updateStats();
+        document.getElementById('cam-status').classList.add('error');
     </script>
 </body>
 </html>
