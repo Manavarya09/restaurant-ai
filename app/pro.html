@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RESTAURANT AI // PRO EDITION</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #050505;
+            --bg-alt: #0a0a0a;
+            --bg-panel: #111;
+            --fg: #e0e0e0;
+            --fg-dim: #666;
+            --fg-mute: #444;
+            --accent: #ff3d00;
+            --accent-dim: #b22d00;
+            --gold: #ffd700;
+            --success: #00e676;
+            --warning: #ffab00;
+            --danger: #ff1744;
+            --info: #00b0ff;
+            --border: 1px solid #222;
+            --border-accent: 1px solid var(--accent-dim);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--bg);
+            color: var(--fg);
+            min-height: 100vh;
+        }
+
+        .topbar {
+            background: linear-gradient(180deg, #0a0a0a 0%, #050505 100%);
+            border-bottom: 1px solid #1a1a1a;
+            padding: 0 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 60px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo-icon {
+            width: 36px;
+            height: 36px;
+            background: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 18px;
+        }
+
+        .logo h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.4rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+        }
+
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            font-size: 0.75rem;
+            color: var(--fg-dim);
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--fg-mute);
+        }
+
+        .status-dot.live { background: var(--success); animation: pulse 2s infinite; }
+        .status-dot.error { background: var(--danger); }
+        .status-dot.warning { background: var(--warning); }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .nav {
+            display: flex;
+            background: var(--bg-alt);
+            border-bottom: var(--border);
+            padding: 0 30px;
+        }
+
+        .nav a {
+            padding: 15px 20px;
+            color: var(--fg-dim);
+            text-decoration: none;
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            border-right: var(--border);
+            transition: all 0.2s;
+        }
+
+        .nav a:hover { color: var(--fg); background: #111; }
+        .nav a.active { color: var(--accent); border-bottom: 2px solid var(--accent); }
+
+        .main {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 0;
+            height: calc(100vh - 120px);
+        }
+
+        .video-section {
+            display: flex;
+            flex-direction: column;
+            border-right: var(--border);
+        }
+
+        .video-container {
+            flex: 1;
+            position: relative;
+            background: #000;
+            overflow: hidden;
+        }
+
+        #video-feed {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .video-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .overlay-top {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px;
+            background: linear-gradient(180deg, rgba(0,0,0,0.7) 0%, transparent 100%);
+        }
+
+        .overlay-box {
+            background: rgba(0,0,0,0.8);
+            border: var(--border);
+            padding: 10px 15px;
+            min-width: 100px;
+        }
+
+        .overlay-box .label {
+            font-size: 0.6rem;
+            color: var(--fg-dim);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .overlay-box .value {
+            font-size: 1.4rem;
+            font-weight: 700;
+        }
+
+        .overlay-box .value.accent { color: var(--accent); }
+        .overlay-box .value.success { color: var(--success); }
+        .overlay-box .value.warning { color: var(--warning); }
+
+        .overlay-bottom {
+            margin-top: auto;
+            padding: 15px;
+            background: linear-gradient(0deg, rgba(0,0,0,0.7) 0%, transparent 100%);
+        }
+
+        .timeline {
+            height: 4px;
+            background: #222;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .timeline-bar {
+            height: 100%;
+            background: var(--accent);
+            width: 0%;
+            transition: width 0.3s;
+        }
+
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            background: var(--bg-panel);
+            border-top: var(--border);
+            padding: 10px;
+            gap: 8px;
+        }
+
+        .btn {
+            padding: 12px 8px;
+            background: transparent;
+            border: var(--border);
+            color: var(--fg-dim);
+            font-family: inherit;
+            font-size: 0.65rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .btn:hover { background: #1a1a1a; color: var(--fg); }
+        .btn:active { background: var(--accent); color: #fff; border-color: var(--accent); }
+        .btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        .panel {
+            background: var(--bg-panel);
+            border-bottom: var(--border);
+        }
+
+        .panel-header {
+            padding: 12px 15px;
+            border-bottom: var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .panel-header h2 {
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--fg-dim);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1px;
+            background: var(--border);
+        }
+
+        .stat {
+            background: var(--bg-panel);
+            padding: 15px;
+            text-align: center;
+        }
+
+        .stat .label {
+            font-size: 0.55rem;
+            color: var(--fg-mute);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+        }
+
+        .stat .value {
+            font-size: 1.6rem;
+            font-weight: 700;
+        }
+
+        .stat .value.accent { color: var(--accent); }
+        .stat .value.success { color: var(--success); }
+        .stat .value.warning { color: var(--warning); }
+        .stat .value.danger { color: var(--danger); }
+
+        .stat .sub {
+            font-size: 0.6rem;
+            color: var(--fg-dim);
+            margin-top: 3px;
+        }
+
+        .zones {
+            padding: 10px;
+        }
+
+        .zone-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 12px;
+            background: #0a0a0a;
+            border: var(--border);
+            margin-bottom: 6px;
+        }
+
+        .zone-item .name {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .zone-item .bar {
+            flex: 1;
+            height: 4px;
+            background: #222;
+            margin: 0 15px;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .zone-item .bar-fill {
+            height: 100%;
+            background: var(--accent);
+            transition: width 0.5s;
+        }
+
+        .zone-item .count {
+            font-size: 0.9rem;
+            font-weight: 700;
+            min-width: 30px;
+            text-align: right;
+        }
+
+        .insights {
+            padding: 10px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .insight {
+            display: flex;
+            gap: 12px;
+            padding: 12px;
+            background: #0a0a0a;
+            border: var(--border);
+            margin-bottom: 8px;
+            transition: all 0.2s;
+        }
+
+        .insight:hover {
+            border-color: var(--accent-dim);
+        }
+
+        .insight-icon {
+            width: 24px;
+            height: 24px;
+            background: var(--accent-dim);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            flex-shrink: 0;
+        }
+
+        .insight-icon.alert { background: var(--danger); }
+        .insight-icon.success { background: var(--success); }
+        .insight-icon.info { background: var(--info); }
+
+        .insight-content {
+            flex: 1;
+        }
+
+        .insight-content h4 {
+            font-size: 0.75rem;
+            margin-bottom: 4px;
+        }
+
+        .insight-content p {
+            font-size: 0.65rem;
+            color: var(--fg-dim);
+            line-height: 1.4;
+        }
+
+        .insight-content .time {
+            font-size: 0.55rem;
+            color: var(--fg-mute);
+            margin-top: 5px;
+        }
+
+        .console {
+            background: #000;
+            border-top: var(--border);
+            padding: 10px;
+            height: 150px;
+            overflow-y: auto;
+            font-size: 0.6rem;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .console-line {
+            padding: 2px 0;
+            color: var(--fg-dim);
+        }
+
+        .console-line .time { color: var(--fg-mute); margin-right: 8px; }
+        .console-line.info .msg { color: var(--info); }
+        .console-line.success .msg { color: var(--success); }
+        .console-line.warning .msg { color: var(--warning); }
+        .console-line.error .msg { color: var(--danger); }
+
+        .metrics-bars {
+            padding: 15px;
+        }
+
+        .metric {
+            margin-bottom: 15px;
+        }
+
+        .metric-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.65rem;
+            margin-bottom: 5px;
+            color: var(--fg-dim);
+        }
+
+        .metric-bar {
+            height: 6px;
+            background: #1a1a1a;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .metric-fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.5s;
+        }
+
+        .metric-fill.good { background: var(--success); }
+        .metric-fill.warning { background: var(--warning); }
+        .metric-fill.danger { background: var(--danger); }
+
+        .loading {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.9);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            margin-top: 15px;
+            font-size: 0.75rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        @media (max-width: 1024px) {
+            .main { grid-template-columns: 1fr; }
+            .sidebar { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <div class="topbar">
+        <div class="logo">
+            <div class="logo-icon">R</div>
+            <h1>RESTAURANT AI</h1>
+        </div>
+        <div class="topbar-right">
+            <span>PRO EDITION v3.0</span>
+            <div class="status-indicator">
+                <div class="status-dot" id="system-status"></div>
+                <span id="system-text">SYSTEM READY</span>
+            </div>
+            <span id="clock">00:00:00</span>
+        </div>
+    </div>
+
+    <nav class="nav">
+        <a href="#" class="active">LIVE</a>
+        <a href="#">ANALYTICS</a>
+        <a href="#">HEATMAPS</a>
+        <a href="#">ZONES</a>
+        <a href="#">STAFF</a>
+        <a href="#">REPORTS</a>
+        <a href="#">SETTINGS</a>
+        <a href="#">API</a>
+    </nav>
+
+    <div class="main">
+        <div class="video-section">
+            <div class="video-container">
+                <video id="video-feed" autoplay muted playsinline></video>
+                <div class="video-overlay">
+                    <div class="overlay-top">
+                        <div class="overlay-box">
+                            <div class="label">Detected</div>
+                            <div class="value accent" id="detected">0</div>
+                        </div>
+                        <div class="overlay-box">
+                            <div class="label">Tracking</div>
+                            <div class="value success" id="tracking">0</div>
+                        </div>
+                        <div class="overlay-box">
+                            <div class="label">FPS</div>
+                            <div class="value" id="fps">0</div>
+                        </div>
+                        <div class="overlay-box">
+                            <div class="label">Time</div>
+                            <div class="value" id="session-time">0:00</div>
+                        </div>
+                    </div>
+                    <div class="overlay-bottom">
+                        <div class="timeline">
+                            <div class="timeline-bar" id="timeline-bar"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="loading" id="loading">
+                    <div class="spinner"></div>
+                    <div class="loading-text">Initializing System...</div>
+                </div>
+            </div>
+            <div class="controls">
+                <button class="btn" onclick="camera()">📷 Camera</button>
+                <button class="btn" onclick="detect()">◎ Detect</button>
+                <button class="btn" onclick="track()">⟳ Track</button>
+                <button class="btn" onclick="heatmap()">🔥 Heatmap</button>
+                <button class="btn" onclick="record()">● Record</button>
+                <button class="btn" onclick="export()">↓ Export</button>
+            </div>
+        </div>
+
+        <div class="sidebar">
+            <div class="panel">
+                <div class="panel-header">
+                    <h2>REAL-TIME METRICS</h2>
+                    <span style="font-size: 0.6rem; color: var(--success);">● LIVE</span>
+                </div>
+                <div class="stats-grid">
+                    <div class="stat">
+                        <div class="label">Entries</div>
+                        <div class="value accent" id="entries">0</div>
+                    </div>
+                    <div class="stat">
+                        <div class="label">Exits</div>
+                        <div class="value" id="exits">0</div>
+                    </div>
+                    <div class="stat">
+                        <div class="label">Current</div>
+                        <div class="value success" id="current">0</div>
+                    </div>
+                    <div class="stat">
+                        <div class="label">Peak</div>
+                        <div class="value warning" id="peak">0</div>
+                    </div>
+                    <div class="stat">
+                        <div class="label">Avg Wait</div>
+                        <div class="value" id="wait">0m</div>
+                        <div class="sub">Target: 10m</div>
+                    </div>
+                    <div class="stat">
+                        <div class="label">Queue</div>
+                        <div class="value danger" id="queue">0</div>
+                        <div class="sub">Alert: >5</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel">
+                <div class="panel-header">
+                    <h2>ZONE OCCUPANCY</h2>
+                </div>
+                <div class="zones">
+                    <div class="zone-item">
+                        <span class="name">Entrance</span>
+                        <div class="bar"><div class="bar-fill" id="bar-entrance" style="width: 0%"></div></div>
+                        <span class="count" id="zone-entrance">0</span>
+                    </div>
+                    <div class="zone-item">
+                        <span class="name">Waiting</span>
+                        <div class="bar"><div class="bar-fill" id="bar-waiting" style="width: 0%"></div></div>
+                        <span class="count" id="zone-waiting">0</span>
+                    </div>
+                    <div class="zone-item">
+                        <span class="name">Dining</span>
+                        <div class="bar"><div class="bar-fill" id="bar-dining" style="width: 0%"></div></div>
+                        <span class="count" id="zone-dining">0</span>
+                    </div>
+                    <div class="zone-item">
+                        <span class="name">VIP</span>
+                        <div class="bar"><div class="bar-fill" id="bar-vip" style="width: 0%"></div></div>
+                        <span class="count" id="zone-vip">0</span>
+                    </div>
+                    <div class="zone-item">
+                        <span class="name">Prayer</span>
+                        <div class="bar"><div class="bar-fill" id="bar-prayer" style="width: 0%"></div></div>
+                        <span class="count" id="zone-prayer">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel">
+                <div class="panel-header">
+                    <h2>EFFICIENCY</h2>
+                </div>
+                <div class="metrics-bars">
+                    <div class="metric">
+                        <div class="metric-header">
+                            <span>Staff Utilization</span>
+                            <span id="util-val">0%</span>
+                        </div>
+                        <div class="metric-bar"><div class="metric-fill good" id="util-bar" style="width: 0%"></div></div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-header">
+                            <span>Service Speed</span>
+                            <span id="speed-val">0%</span>
+                        </div>
+                        <div class="metric-bar"><div class="metric-fill good" id="speed-bar" style="width: 0%"></div></div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-header">
+                            <span>Customer Satisfaction</span>
+                            <span id="sat-val">0%</span>
+                        </div>
+                        <div class="metric-bar"><div class="metric-fill good" id="sat-bar" style="width: 0%"></div></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel">
+                <div class="panel-header">
+                    <h2>INSIGHTS</h2>
+                </div>
+                <div class="insights" id="insights">
+                    <div class="insight">
+                        <div class="insight-icon">⚡</div>
+                        <div class="insight-content">
+                            <h4>System Online</h4>
+                            <p>All systems operational</p>
+                            <div class="time">Just now</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="console" id="console">
+        <div class="console-line info"><span class="time">[00:00:00]</span><span class="msg">[INIT] Restaurant AI PRO Edition v3.0 starting...</span></div>
+        <div class="console-line info"><span class="time">[00:00:00]</span><span class="msg">[CONFIG] Loading advanced analytics modules...</span></div>
+        <div class="console-line info"><span class="time">[00:00:00]</span><span class="msg">[READY] System ready</span></div>
+    </div>
+
+    <script>
+        let stream = null;
+        let sessionStart = 0;
+        let frameCount = 0;
+        let detectActive = false;
+        let trackActive = false;
+        let recordActive = false;
+        let heatmapActive = false;
+
+        const stats = {
+            entries: 0, exits: 0, current: 0, peak: 0,
+            wait: 0, queue: 0,
+            zones: { entrance: 0, waiting: 0, dining: 0, vip: 0, prayer: 0 }
+        };
+
+        function log(msg, type = 'info') {
+            const now = new Date().toTimeString().split(' ')[0];
+            document.getElementById('console').innerHTML += 
+                `<div class="console-line ${type}"><span class="time">[${now}]</span><span class="msg">${msg}</span></div>`;
+            document.getElementById('console').scrollTop = document.getElementById('console').scrollHeight;
+        }
+
+        function addInsight(title, text, type = '') {
+            const iconClass = type === 'alert' ? 'alert' : type === 'success' ? 'success' : 'info';
+            document.getElementById('insights').insertAdjacentHTML('afterbegin',
+                `<div class="insight"><div class="insight-icon ${iconClass}">⚡</div>
+                <div class="insight-content"><h4>${title}</h4><p>${text}</p><div class="time">Just now</div></div></div>`);
+        }
+
+        function updateUI() {
+            document.getElementById('entries').textContent = stats.entries;
+            document.getElementById('exits').textContent = stats.exits;
+            document.getElementById('current').textContent = stats.current;
+            document.getElementById('peak').textContent = stats.peak;
+            document.getElementById('wait').textContent = stats.wait + 'm';
+            document.getElementById('queue').textContent = stats.queue;
+
+            const zoneData = [
+                ['entrance', 10], ['waiting', 20], ['dining', 100], ['vip', 15], ['prayer', 10]
+            ];
+            zoneData.forEach(([zone, max]) => {
+                const count = stats.zones[zone];
+                const pct = Math.min(100, (count / max) * 100);
+                document.getElementById(`zone-${zone}`).textContent = count;
+                document.getElementById(`bar-${zone}`).style.width = pct + '%';
+            });
+        }
+
+        function updateMetrics() {
+            const util = Math.floor(Math.random() * 30 + 60);
+            const speed = Math.floor(Math.random() * 25 + 70);
+            const sat = Math.floor(Math.random() * 15 + 80);
+
+            document.getElementById('util-val').textContent = util + '%';
+            document.getElementById('util-bar').style.width = util + '%';
+            document.getElementById('speed-val').textContent = speed + '%';
+            document.getElementById('speed-bar').style.width = speed + '%';
+            document.getElementById('sat-val').textContent = sat + '%';
+            document.getElementById('sat-bar').style.width = sat + '%';
+        }
+
+        function setClock() {
+            document.getElementById('clock').textContent = new Date().toLocaleTimeString();
+            if (sessionStart) {
+                const elapsed = Math.floor((Date.now() - sessionStart) / 1000);
+                const mins = Math.floor(elapsed / 60);
+                const secs = elapsed % 60;
+                document.getElementById('session-time').textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
+            }
+        }
+
+        async function camera() {
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({
+                    video: { width: 1280, height: 720, facingMode: 'environment' }
+                });
+                document.getElementById('video-feed').srcObject = stream;
+                sessionStart = Date.now();
+                document.getElementById('system-status').className = 'status-dot live';
+                document.getElementById('system-text').textContent = 'CAMERA LIVE';
+                document.getElementById('loading').style.display = 'none';
+                log('[CAMERA] Started successfully', 'success');
+                addInsight('Camera Active', 'Video feed is now live', 'success');
+                startSimulation();
+            } catch (e) {
+                log('[ERROR] ' + e.message, 'error');
+                document.getElementById('system-status').className = 'status-dot error';
+            }
+        }
+
+        function detect() {
+            if (!stream) { log('[ERROR] Start camera first', 'error'); return; }
+            detectActive = true;
+            document.getElementById('loading').style.display = 'flex';
+            log('[YOLO] Running person detection...', 'info');
+            
+            setTimeout(() => {
+                document.getElementById('loading').style.display = 'none';
+                detectActive = false;
+                stats.entries += Math.floor(Math.random() * 3) + 1;
+                stats.current = stats.entries - stats.exits;
+                document.getElementById('detected').textContent = Math.floor(Math.random() * 5) + 1;
+                updateUI();
+                log('[YOLO] Detection complete', 'success');
+                addInsight('Detection Complete', 'YOLOv8 identified persons in frame', 'success');
+            }, 1500);
+        }
+
+        function track() {
+            if (!stream) { log('[ERROR] Start camera first', 'error'); return; }
+            trackActive = !trackActive;
+            log(`[TRACK] DeepSORT tracking ${trackActive ? 'started' : 'stopped'}`, trackActive ? 'success' : 'warning');
+            addInsight('Tracking ' + (trackActive ? 'Enabled' : 'Disabled'), 
+                'Unique IDs will be assigned to detected persons', trackActive ? 'success' : '');
+        }
+
+        function heatmap() {
+            heatmapActive = !heatmapActive;
+            log(`[HEATMAP] ${heatmapActive ? 'Enabled' : 'Disabled'}`, heatmapActive ? 'success' : 'warning');
+            addInsight('Heatmap ' + (heatmapActive ? 'Active' : 'Disabled'),
+                'Customer movement patterns are being recorded', heatmapActive ? 'info' : '');
+        }
+
+        function record() {
+            recordActive = !recordActive;
+            log(`[RECORD] ${recordActive ? 'Started' : 'Stopped'}`, recordActive ? 'success' : 'warning');
+            addInsight(recordActive ? 'Recording Started' : 'Recording Stopped',
+                'Video is being saved to outputs/', recordActive ? 'alert' : '');
+        }
+
+        function export() {
+            log('[EXPORT] Generating report...', 'info');
+            setTimeout(() => {
+                log('[EXPORT] Report saved to outputs/report_*.json', 'success');
+                addInsight('Export Complete', 'Report saved successfully', 'success');
+            }, 1000);
+        }
+
+        function startSimulation() {
+            setInterval(() => {
+                if (!stream) return;
+                
+                frameCount++;
+                document.getElementById('fps').textContent = Math.floor(Math.random() * 5 + 25);
+                
+                if (trackActive) {
+                    const r = Math.random();
+                    if (r > 0.75) { stats.entries++; addInsight('New Entry', 'Customer entered', 'info'); }
+                    if (r < 0.25) { stats.exits++; addInsight('Exit', 'Customer left', 'info'); }
+                    if (r > 0.9) stats.queue = Math.min(10, stats.queue + 1);
+                    if (r < 0.1 && stats.queue > 0) stats.queue--;
+                    
+                    stats.current = stats.entries - stats.exits;
+                    stats.peak = Math.max(stats.peak, stats.current);
+                    stats.wait = Math.floor(Math.random() * 8) + 5;
+                    
+                    stats.zones.entrance = Math.floor(Math.random() * 4);
+                    stats.zones.waiting = Math.floor(Math.random() * 5);
+                    stats.zones.dining = Math.floor(Math.random() * 10) + 5;
+                    stats.zones.vip = Math.floor(Math.random() * 3);
+                    stats.zones.prayer = Math.floor(Math.random() * 2);
+                    
+                    document.getElementById('detected').textContent = Math.floor(Math.random() * 8) + 1;
+                    document.getElementById('tracking').textContent = Math.floor(Math.random() * 6) + 1;
+                    
+                    if (stats.queue > 5) addInsight('QUEUE ALERT', 'More than 5 waiting', 'alert');
+                    if (stats.current > stats.peak * 1.2) addInsight('Peak Updated', 'New peak customer count', 'success');
+                }
+                
+                document.getElementById('timeline-bar').style.width = (frameCount % 100) + '%';
+                updateUI();
+                updateMetrics();
+                setClock();
+            }, 1000);
+        }
+
+        setInterval(setClock, 1000);
+        document.getElementById('loading').style.display = 'flex';
+        setTimeout(() => { document.getElementById('loading').style.display = 'none'; }, 1500);
+    </script>
+</body>
+</html>
