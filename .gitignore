@@ -1,0 +1,65 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+*.egg
+
+# Virtual environments
+venv/
+env/
+.venv/
+.env/
+
+# IDE / editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.settings/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Environment variables
+.env
+.env.local
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# PyTorch / model weights
+*.pt
+*.pth
+*.onnx
+*.engine
+
+# YOLO / Ultralytics
+runs/
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Log files
+*.log
+
+# Output files (keep the directory via outputs/.gitkeep if needed)
+outputs/*.mp4
+outputs/*.avi
+outputs/*.json
+outputs/*.csv
+outputs/*.xlsx
+
+# Data files that may be large
+data/*.mp4
+data/*.avi
+data/*.mov
