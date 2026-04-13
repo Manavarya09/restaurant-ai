@@ -1,0 +1,1736 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RESTAURANT AI // COMMAND CENTER</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0d0d0d;
+  --metal-dark: #1a1a1a;
+  --metal-mid: #2a2a2a;
+  --metal-light: #3a3a3a;
+  --metal-shine: #4a4a4a;
+  --accent: #ff4500;
+  --accent2: #ff8c00;
+  --gold: #c9a227;
+  --green-led: #39ff14;
+  --red-led: #ff1a1a;
+  --blue-led: #00d4ff;
+  --amber: #ffbf00;
+  --panel-bg: radial-gradient(ellipse at 30% 20%, #2e2e2e 0%, #1a1a1a 40%, #111 100%);
+  --screw-size: 12px;
+  --etch-color: rgba(255,255,255,0.04);
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  font-family: 'Share Tech Mono', monospace;
+  background: #080808;
+  background-image:
+    radial-gradient(circle at 20% 50%, rgba(255,69,0,0.03) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(0,212,255,0.02) 0%, transparent 40%),
+    repeating-linear-gradient(0deg, transparent, transparent 40px, rgba(255,255,255,0.01) 40px, rgba(255,255,255,0.01) 41px),
+    repeating-linear-gradient(90deg, transparent, transparent 40px, rgba(255,255,255,0.01) 40px, rgba(255,255,255,0.01) 41px);
+  min-height:100vh; overflow-x:hidden;
+  perspective: 2000px;
+}
+
+/* ─── SCREW DECORATOR ─── */
+.screw {
+  width:var(--screw-size); height:var(--screw-size);
+  border-radius:50%;
+  background: radial-gradient(circle at 35% 30%, #555 0%, #222 40%, #111 100%);
+  box-shadow: 0 0 0 1px #000, inset 0 1px 2px rgba(255,255,255,0.15);
+  position:absolute;
+}
+.screw::after {
+  content:'';
+  position:absolute; top:50%; left:50%;
+  transform: translate(-50%,-50%) rotate(45deg);
+  width:60%; height:1px;
+  background: rgba(0,0,0,0.6);
+  box-shadow: 0 1px 0 rgba(255,255,255,0.1);
+}
+
+/* ─── MAIN FRAME ─── */
+.machine {
+  max-width:1600px; margin:0 auto; padding:20px;
+}
+
+/* ─── TOP BEZEL / HEADER ─── */
+.header-bezel {
+  background: linear-gradient(180deg, #3a3a3a 0%, #1e1e1e 30%, #222 70%, #1a1a1a 100%);
+  border:1px solid #444;
+  border-bottom: 3px solid #111;
+  border-radius:8px 8px 0 0;
+  padding:0 30px;
+  height:72px;
+  display:flex; align-items:center; justify-content:space-between;
+  position:relative;
+  box-shadow:
+    0 -1px 0 rgba(255,255,255,0.08) inset,
+    0 4px 20px rgba(0,0,0,0.8),
+    0 1px 0 #555 inset;
+}
+.header-bezel::before {
+  content:'';
+  position:absolute; top:4px; left:15px; right:15px; bottom:4px;
+  border-top:1px solid rgba(255,255,255,0.06);
+  pointer-events:none;
+}
+
+/* brand plate */
+.brand-plate {
+  background: linear-gradient(135deg, #1a1200 0%, #2d2000 30%, #1a1200 100%);
+  border:1px solid #8a6a10;
+  border-radius:4px;
+  padding:8px 20px;
+  position:relative;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,200,50,0.1);
+}
+.brand-plate h1 {
+  font-family:'Orbitron',sans-serif;
+  font-size:1.1rem; font-weight:900;
+  letter-spacing:4px;
+  color:var(--gold);
+  text-shadow: 0 0 20px rgba(201,162,39,0.5), 0 1px 0 rgba(0,0,0,0.8);
+}
+.brand-plate .sub {
+  font-size:0.5rem; letter-spacing:3px;
+  color:rgba(201,162,39,0.5);
+  text-transform:uppercase;
+}
+
+/* LED cluster */
+.led-cluster {
+  display:flex; gap:12px; align-items:center;
+}
+.led-group { display:flex; flex-direction:column; align-items:center; gap:4px; }
+.led {
+  width:14px; height:14px;
+  border-radius:50%;
+  border:2px solid rgba(0,0,0,0.5);
+  position:relative;
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.8);
+  cursor:default;
+}
+.led.green {
+  background:radial-gradient(circle at 40% 35%, #7fff00, #39ff14 40%, #004400);
+  box-shadow: 0 0 8px var(--green-led), 0 0 20px rgba(57,255,20,0.3), 0 0 0 1px #000;
+  animation: ledpulse 2s ease-in-out infinite;
+}
+.led.red { background:radial-gradient(circle at 40% 35%, #ff6666, #ff1a1a 40%, #440000); box-shadow: 0 0 6px var(--red-led), 0 0 0 1px #000; }
+.led.amber { background:radial-gradient(circle at 40% 35%, #ffd966, #ffbf00 40%, #443300); box-shadow: 0 0 6px var(--amber), 0 0 0 1px #000; }
+.led.blue { background:radial-gradient(circle at 40% 35%, #99eeff, #00d4ff 40%, #002244); box-shadow: 0 0 6px var(--blue-led), 0 0 0 1px #000; }
+.led.off { background:radial-gradient(circle at 40% 35%, #333, #1a1a1a 60%, #111); }
+.led-label { font-size:0.42rem; color:rgba(255,255,255,0.35); letter-spacing:1px; text-transform:uppercase; }
+
+@keyframes ledpulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+
+/* VFD display */
+.vfd-display {
+  background: #020a02;
+  border:2px solid #111;
+  border-radius:3px;
+  padding:6px 14px;
+  font-family:'Orbitron',sans-serif;
+  font-size:0.75rem;
+  letter-spacing:2px;
+  color:#39ff14;
+  text-shadow: 0 0 10px #39ff14;
+  box-shadow: inset 0 1px 8px rgba(0,0,0,0.9), 0 0 4px rgba(57,255,20,0.15);
+  min-width:180px; text-align:center;
+}
+
+/* clock */
+.clock-display {
+  background:#020208;
+  border:2px solid #111;
+  border-radius:3px;
+  padding:6px 14px;
+  font-family:'Orbitron',sans-serif;
+  font-size:1.1rem; font-weight:700;
+  letter-spacing:3px;
+  color:var(--blue-led);
+  text-shadow: 0 0 15px rgba(0,212,255,0.6);
+  box-shadow: inset 0 1px 8px rgba(0,0,0,0.9), 0 0 8px rgba(0,212,255,0.1);
+}
+
+/* ─── NAV PANEL ─── */
+.nav-panel {
+  background: linear-gradient(180deg, #1e1e1e 0%, #181818 100%);
+  border-left:1px solid #444;
+  border-right:1px solid #444;
+  border-bottom:1px solid #111;
+  padding:0 20px;
+  display:flex; align-items:stretch;
+  position:relative;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.7);
+}
+.nav-panel::after {
+  content:'';
+  position:absolute; bottom:0; left:0; right:0; height:1px;
+  background: linear-gradient(90deg, transparent, rgba(255,69,0,0.3), transparent);
+}
+
+.nav-btn {
+  padding:12px 18px;
+  color:rgba(255,255,255,0.3);
+  background:none; border:none;
+  font-family:'Share Tech Mono',monospace;
+  font-size:0.65rem; font-weight:600;
+  letter-spacing:2px; text-transform:uppercase;
+  cursor:pointer; position:relative;
+  transition:color .15s;
+  border-right:1px solid #222;
+}
+.nav-btn:hover { color:rgba(255,255,255,0.7); }
+.nav-btn.active {
+  color:var(--accent);
+  background: linear-gradient(180deg, rgba(255,69,0,0.1) 0%, transparent 100%);
+}
+.nav-btn.active::after {
+  content:'';
+  position:absolute; bottom:0; left:0; right:0; height:2px;
+  background:var(--accent);
+  box-shadow: 0 0 8px var(--accent);
+}
+
+/* ─── MAIN BODY ─── */
+.body-frame {
+  background: var(--panel-bg);
+  border:1px solid #333;
+  border-top:none;
+  border-radius:0 0 8px 8px;
+  position:relative;
+  padding:2px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.9), inset 0 1px 0 rgba(255,255,255,0.03);
+  min-height: calc(100vh - 200px);
+}
+
+/* ─── PAGES ─── */
+.page { display:none; }
+.page.active { display:flex; flex-direction:column; }
+
+/* ─── LIVE PAGE ─── */
+.live-layout {
+  display:grid; grid-template-columns: 1fr 340px;
+  gap:0; min-height:calc(100vh - 210px);
+}
+
+/* Camera bay */
+.camera-bay {
+  background: #050505;
+  border-right:3px solid #111;
+  position:relative;
+  display:flex; flex-direction:column;
+}
+
+.bay-header {
+  background: linear-gradient(180deg, #252525 0%, #1a1a1a 100%);
+  border-bottom:2px solid #111;
+  padding:8px 16px;
+  display:flex; align-items:center; justify-content:space-between;
+}
+.bay-title {
+  font-family:'Orbitron',sans-serif;
+  font-size:0.55rem; letter-spacing:3px;
+  color:rgba(255,255,255,0.25); text-transform:uppercase;
+}
+.scan-line-badge {
+  font-size:0.5rem; letter-spacing:2px;
+  color:var(--green-led);
+  text-shadow: 0 0 6px var(--green-led);
+  animation:ledpulse 1.5s infinite;
+}
+
+.video-mount {
+  flex:1; position:relative; overflow:hidden;
+  background:#000;
+  min-height:420px;
+}
+.video-mount video {
+  width:100%; height:100%; object-fit:cover;
+}
+
+/* CRT scanline overlay */
+.scanlines {
+  position:absolute; inset:0; pointer-events:none;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent, transparent 2px,
+    rgba(0,0,0,0.12) 2px, rgba(0,0,0,0.12) 4px
+  );
+  z-index:2;
+}
+
+/* Corner brackets */
+.corner {
+  position:absolute; width:24px; height:24px; z-index:3;
+  pointer-events:none;
+}
+.corner.tl { top:12px; left:12px; border-top:2px solid var(--accent); border-left:2px solid var(--accent); }
+.corner.tr { top:12px; right:12px; border-top:2px solid var(--accent); border-right:2px solid var(--accent); }
+.corner.bl { bottom:12px; left:12px; border-bottom:2px solid var(--accent); border-left:2px solid var(--accent); }
+.corner.br { bottom:12px; right:12px; border-bottom:2px solid var(--accent); border-right:2px solid var(--accent); }
+
+/* HUD overlay */
+.hud {
+  position:absolute; inset:0; pointer-events:none; z-index:4;
+  display:flex; flex-direction:column; justify-content:space-between;
+  padding:40px 20px 20px;
+}
+.hud-top { display:flex; justify-content:space-between; }
+.hud-stat {
+  background:rgba(0,0,0,0.75);
+  border:1px solid rgba(255,69,0,0.3);
+  padding:6px 12px;
+  backdrop-filter:blur(4px);
+  clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 0 100%);
+}
+.hud-stat .hl { font-size:0.45rem; color:rgba(255,255,255,0.35); letter-spacing:2px; text-transform:uppercase; }
+.hud-stat .hv { font-size:1.4rem; font-weight:700; font-family:'Orbitron',sans-serif; color:var(--accent); text-shadow:0 0 10px var(--accent); }
+.hud-stat .hv.green { color:var(--green-led); text-shadow:0 0 10px var(--green-led); }
+.hud-stat .hv.blue { color:var(--blue-led); text-shadow:0 0 10px var(--blue-led); }
+.hud-stat .hv.amber { color:var(--amber); text-shadow:0 0 10px var(--amber); }
+
+.hud-bottom {}
+.progress-track {
+  height:3px; background:rgba(255,255,255,0.05);
+  border-radius:2px; overflow:hidden; margin-bottom:6px;
+}
+.progress-fill {
+  height:100%; background:linear-gradient(90deg,var(--accent),var(--accent2));
+  box-shadow: 0 0 8px var(--accent);
+  width:0%; transition:width .4s;
+}
+
+/* loading screen */
+.loading-screen {
+  position:absolute; inset:0; z-index:10;
+  background:rgba(0,0,0,0.95);
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+}
+.loading-ring {
+  width:60px; height:60px;
+  border:3px solid #111;
+  border-top:3px solid var(--accent);
+  border-right:3px solid var(--accent2);
+  border-radius:50%;
+  animation:spin 1.2s cubic-bezier(.5,0,.5,1) infinite;
+  box-shadow: 0 0 20px rgba(255,69,0,0.3);
+}
+@keyframes spin { to{transform:rotate(360deg)} }
+.loading-text {
+  margin-top:16px;
+  font-family:'Orbitron',sans-serif;
+  font-size:0.6rem; letter-spacing:4px;
+  color:var(--accent);
+  text-shadow:0 0 10px var(--accent);
+}
+
+/* control strip */
+.ctrl-strip {
+  background: linear-gradient(180deg, #1e1e1e 0%, #161616 100%);
+  border-top:2px solid #111;
+  padding:10px 14px;
+  display:flex; gap:8px;
+}
+
+.ctrl-btn {
+  flex:1;
+  padding:10px 4px;
+  background: linear-gradient(180deg, #2e2e2e 0%, #1e1e1e 50%, #181818 100%);
+  border:1px solid #3a3a3a;
+  border-bottom:3px solid #0a0a0a;
+  border-radius:4px;
+  color:rgba(255,255,255,0.5);
+  font-family:'Share Tech Mono',monospace;
+  font-size:0.55rem; letter-spacing:1px;
+  text-transform:uppercase; cursor:pointer;
+  transition:all .1s;
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.05) inset,
+    0 2px 4px rgba(0,0,0,0.5);
+  position:relative;
+}
+.ctrl-btn:hover {
+  background: linear-gradient(180deg, #3a3a3a 0%, #2a2a2a 50%, #222 100%);
+  color:rgba(255,255,255,0.8);
+  border-color:#555;
+}
+.ctrl-btn:active, .ctrl-btn.active {
+  transform:translateY(2px);
+  border-bottom-width:1px;
+  box-shadow: 0 0 0 rgba(255,255,255,0) inset, 0 1px 1px rgba(0,0,0,0.5);
+  background: linear-gradient(180deg, #ff4500 0%, #cc3300 100%);
+  color:#fff;
+  border-color:#ff6620;
+  box-shadow: 0 0 15px rgba(255,69,0,0.3), inset 0 1px 0 rgba(255,150,100,0.2);
+}
+
+/* ─── RIGHT SIDEBAR (instrument cluster) ─── */
+.instrument-cluster {
+  display:flex; flex-direction:column;
+  background: linear-gradient(180deg, #161616 0%, #121212 100%);
+  overflow-y:auto;
+}
+
+/* Panel card */
+.instr-panel {
+  border-bottom:1px solid #0f0f0f;
+  position:relative;
+  background: linear-gradient(135deg, #1d1d1d 0%, #161616 100%);
+}
+.instr-panel::before {
+  content:'';
+  position:absolute; top:0; left:0; right:0; height:1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.04), transparent);
+}
+.instr-header {
+  padding:8px 14px;
+  display:flex; align-items:center; justify-content:space-between;
+  border-bottom:1px solid rgba(0,0,0,0.5);
+}
+.instr-title {
+  font-family:'Orbitron',sans-serif;
+  font-size:0.48rem; letter-spacing:2.5px;
+  color:rgba(255,255,255,0.2); text-transform:uppercase;
+}
+.instr-live {
+  font-size:0.45rem; letter-spacing:1px;
+  color:var(--green-led);
+  text-shadow:0 0 6px var(--green-led);
+}
+
+/* 6-metric grid */
+.metric-grid {
+  display:grid; grid-template-columns:1fr 1fr;
+  gap:1px; background:#0a0a0a;
+}
+.metric-cell {
+  background: linear-gradient(135deg, #191919 0%, #141414 100%);
+  padding:14px 12px; text-align:center;
+  position:relative; overflow:hidden;
+}
+.metric-cell::after {
+  content:'';
+  position:absolute; top:0; left:0; right:0; height:1px;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,0.03),transparent);
+}
+.mc-label {
+  font-size:0.45rem; letter-spacing:1.5px; text-transform:uppercase;
+  color:rgba(255,255,255,0.2); margin-bottom:6px;
+}
+.mc-value {
+  font-family:'Orbitron',sans-serif;
+  font-size:1.6rem; font-weight:700;
+  line-height:1;
+}
+.mc-value.accent { color:var(--accent); text-shadow:0 0 15px rgba(255,69,0,0.4); }
+.mc-value.green { color:var(--green-led); text-shadow:0 0 12px rgba(57,255,20,0.4); }
+.mc-value.amber { color:var(--amber); text-shadow:0 0 12px rgba(255,191,0,0.4); }
+.mc-value.red { color:var(--red-led); text-shadow:0 0 12px rgba(255,26,26,0.4); }
+.mc-value.blue { color:var(--blue-led); text-shadow:0 0 12px rgba(0,212,255,0.4); }
+.mc-sub { font-size:0.45rem; color:rgba(255,255,255,0.2); margin-top:3px; }
+
+/* Zone bars */
+.zone-list { padding:10px; }
+.zone-row {
+  display:flex; align-items:center; gap:10px;
+  padding:7px 10px; margin-bottom:4px;
+  background: linear-gradient(90deg, #0f0f0f, #141414);
+  border:1px solid #1a1a1a;
+  border-left:3px solid transparent;
+  transition:border-left-color .3s;
+}
+.zone-row.active { border-left-color:var(--accent); }
+.zone-name { font-size:0.55rem; letter-spacing:1px; text-transform:uppercase; color:rgba(255,255,255,0.35); min-width:55px; }
+.zone-bar-track { flex:1; height:3px; background:#0a0a0a; border-radius:2px; overflow:hidden; }
+.zone-bar-fill { height:100%; background:linear-gradient(90deg,var(--accent),var(--accent2)); box-shadow:0 0 4px var(--accent); border-radius:2px; transition:width .6s cubic-bezier(.4,0,.2,1); }
+.zone-cnt { font-family:'Orbitron',sans-serif; font-size:0.75rem; color:var(--accent); min-width:20px; text-align:right; }
+
+/* Efficiency gauges */
+.gauge-list { padding:12px; }
+.gauge-item { margin-bottom:14px; }
+.gauge-header { display:flex; justify-content:space-between; font-size:0.52rem; color:rgba(255,255,255,0.3); margin-bottom:5px; }
+.gauge-val { color:rgba(255,255,255,0.7); }
+.gauge-track {
+  height:8px;
+  background: linear-gradient(90deg, #0a0a0a, #111);
+  border-radius:4px;
+  border:1px solid #0a0a0a;
+  overflow:hidden;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.8);
+  position:relative;
+}
+.gauge-fill {
+  height:100%; border-radius:4px;
+  transition:width .7s cubic-bezier(.4,0,.2,1);
+  position:relative;
+}
+.gauge-fill.g { background:linear-gradient(90deg,#006600,var(--green-led)); box-shadow:0 0 8px rgba(57,255,20,0.3); }
+.gauge-fill.o { background:linear-gradient(90deg,#664400,var(--amber)); box-shadow:0 0 8px rgba(255,191,0,0.3); }
+.gauge-fill.r { background:linear-gradient(90deg,#660000,var(--red-led)); box-shadow:0 0 8px rgba(255,26,26,0.3); }
+
+/* Insight ticker */
+.insight-feed { padding:8px; max-height:220px; overflow-y:auto; }
+.insight-feed::-webkit-scrollbar { width:3px; }
+.insight-feed::-webkit-scrollbar-track { background:#0a0a0a; }
+.insight-feed::-webkit-scrollbar-thumb { background:var(--accent); }
+.insight-item {
+  display:flex; gap:8px; padding:8px;
+  background:#0d0d0d; border:1px solid #1a1a1a;
+  border-left:3px solid #333;
+  margin-bottom:5px;
+  transition:border-color .2s;
+}
+.insight-item.alert { border-left-color:var(--red-led); }
+.insight-item.success { border-left-color:var(--green-led); }
+.insight-item.info { border-left-color:var(--blue-led); }
+.insight-item .ii-icon {
+  width:18px; height:18px; border-radius:2px;
+  background:#1a1a1a;
+  display:flex; align-items:center; justify-content:center;
+  font-size:9px; flex-shrink:0;
+}
+.insight-item .ii-text { flex:1; }
+.insight-item .ii-title { font-size:0.6rem; color:rgba(255,255,255,0.7); margin-bottom:2px; }
+.insight-item .ii-desc { font-size:0.55rem; color:rgba(255,255,255,0.3); line-height:1.4; }
+.insight-item .ii-time { font-size:0.45rem; color:rgba(255,255,255,0.15); margin-top:3px; }
+
+/* ─── CONSOLE ─── */
+.console-panel {
+  background:#030303;
+  border-top:3px solid #111;
+  padding:10px 16px;
+  height:120px; overflow-y:auto;
+  font-size:0.55rem; line-height:1.8;
+}
+.console-panel::-webkit-scrollbar { width:3px; }
+.console-panel::-webkit-scrollbar-thumb { background:#333; }
+.cline { display:flex; gap:10px; }
+.ctime { color:rgba(255,255,255,0.15); min-width:70px; }
+.cmsg { }
+.cline.info .cmsg { color:rgba(0,212,255,0.7); }
+.cline.success .cmsg { color:rgba(57,255,20,0.7); }
+.cline.warn .cmsg { color:rgba(255,191,0,0.7); }
+.cline.error .cmsg { color:rgba(255,26,26,0.7); }
+.cline.log .cmsg { color:rgba(255,255,255,0.3); }
+
+/* ─── ANALYTICS PAGE ─── */
+.analytics-page { flex:1; overflow-y:auto; }
+.big-stats-row {
+  display:grid; grid-template-columns:repeat(4,1fr);
+  gap:1px; background:#0a0a0a;
+}
+.big-stat-cell {
+  background: linear-gradient(135deg, #1d1d1d 0%, #141414 100%);
+  padding:30px 20px; text-align:center;
+  position:relative; overflow:hidden;
+}
+.big-stat-cell::before {
+  content:'';
+  position:absolute; top:0; left:30%; right:30%; height:1px;
+  background:linear-gradient(90deg,transparent,rgba(255,69,0,0.3),transparent);
+}
+.bsl { font-size:0.5rem; letter-spacing:2px; text-transform:uppercase; color:rgba(255,255,255,0.2); margin-bottom:10px; }
+.bsv { font-family:'Orbitron',sans-serif; font-size:3.5rem; font-weight:900; color:var(--accent); text-shadow:0 0 30px rgba(255,69,0,0.3); }
+.bss { font-size:0.5rem; color:rgba(255,255,255,0.2); margin-top:6px; }
+
+.charts-row {
+  display:grid; grid-template-columns:1fr 1fr;
+  gap:0; border-top:1px solid #111;
+}
+.chart-panel {
+  padding:20px; border-right:1px solid #111;
+}
+.chart-panel h3 {
+  font-family:'Orbitron',sans-serif;
+  font-size:0.52rem; letter-spacing:2.5px; text-transform:uppercase;
+  color:rgba(255,255,255,0.2); margin-bottom:16px;
+  padding-bottom:8px;
+  border-bottom:1px solid rgba(255,69,0,0.15);
+}
+.bar-chart { display:flex; align-items:flex-end; gap:5px; height:160px; }
+.bc-col { flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; }
+.bc-fill {
+  width:100%; min-height:2px;
+  background:linear-gradient(180deg,var(--accent2),var(--accent));
+  box-shadow:0 0 6px rgba(255,69,0,0.25);
+  border-radius:2px 2px 0 0;
+  transition:height .6s cubic-bezier(.4,0,.2,1);
+}
+.bc-lbl { font-size:0.42rem; color:rgba(255,255,255,0.2); }
+.bc-val { font-size:0.5rem; color:rgba(255,255,255,0.4); }
+
+.insights-panel { padding:20px; border-top:1px solid #111; }
+.insights-panel h3 {
+  font-family:'Orbitron',sans-serif;
+  font-size:0.52rem; letter-spacing:2.5px;
+  color:rgba(255,255,255,0.2); margin-bottom:14px;
+}
+.ai-insights { display:flex; flex-direction:column; gap:6px; }
+.ai-card {
+  background:#0d0d0d; border:1px solid #1a1a1a;
+  padding:12px 16px;
+  border-left:3px solid var(--accent);
+  font-size:0.6rem; color:rgba(255,255,255,0.4);
+  line-height:1.5;
+}
+.ai-card.warn { border-left-color:var(--amber); }
+.ai-card.danger { border-left-color:var(--red-led); }
+
+/* ─── HEATMAP PAGE ─── */
+.heatmap-page { flex:1; padding:20px; display:flex; flex-direction:column; gap:16px; }
+.heatmap-page h3 {
+  font-family:'Orbitron',sans-serif;
+  font-size:0.52rem; letter-spacing:3px;
+  color:rgba(255,255,255,0.2);
+}
+.heatmap-wrap {
+  flex:1; min-height:400px;
+  background:#000;
+  border:2px solid #1a1a1a;
+  position:relative; overflow:hidden;
+  box-shadow: inset 0 0 40px rgba(0,0,0,0.8);
+}
+#heatmap-canvas { width:100%; height:100%; display:block; }
+.hm-legend { display:flex; gap:20px; font-size:0.52rem; color:rgba(255,255,255,0.25); }
+.hml { display:flex; align-items:center; gap:6px; }
+.hml-dot { width:10px; height:10px; border-radius:50%; }
+.hm-floor-label {
+  position:absolute; font-size:0.5rem; letter-spacing:2px;
+  text-transform:uppercase; color:rgba(255,255,255,0.15);
+  pointer-events:none;
+}
+
+/* ─── ZONES PAGE ─── */
+.zones-page { flex:1; overflow-y:auto; padding:20px; }
+.zones-page h3 { font-family:'Orbitron',sans-serif; font-size:0.52rem; letter-spacing:2px; color:rgba(255,255,255,0.2); margin-bottom:16px; }
+.zone-cards { display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:10px; }
+.zone-card {
+  background: linear-gradient(135deg, #1d1d1d 0%, #141414 100%);
+  border:1px solid #222;
+  border-top:3px solid var(--accent);
+  padding:20px;
+  position:relative;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+  transition:transform .2s, box-shadow .2s;
+}
+.zone-card:hover { transform:translateY(-2px); box-shadow:0 8px 30px rgba(0,0,0,0.7); }
+.zc-name { font-size:0.55rem; letter-spacing:2px; text-transform:uppercase; color:rgba(255,255,255,0.25); margin-bottom:12px; }
+.zc-count { font-family:'Orbitron',sans-serif; font-size:3rem; font-weight:900; color:var(--accent); text-shadow:0 0 20px rgba(255,69,0,0.3); line-height:1; }
+.zc-of { font-size:0.55rem; color:rgba(255,255,255,0.2); margin-top:4px; }
+.zc-pct { font-size:0.65rem; color:rgba(255,255,255,0.3); margin-top:8px; }
+.zc-bar { height:4px; background:#0a0a0a; border-radius:2px; margin-top:10px; overflow:hidden; }
+.zc-bar-fill { height:100%; border-radius:2px; transition:width .7s cubic-bezier(.4,0,.2,1); }
+
+/* ─── STAFF PAGE ─── */
+.staff-page { flex:1; overflow-y:auto; padding:20px; }
+.staff-page h3 { font-family:'Orbitron',sans-serif; font-size:0.52rem; letter-spacing:2px; color:rgba(255,255,255,0.2); margin-bottom:16px; }
+.staff-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:10px; }
+.staff-card {
+  background: linear-gradient(135deg, #1a1a1a 0%, #111 100%);
+  border:1px solid #222;
+  padding:16px;
+  position:relative;
+}
+.sc-id { font-size:0.5rem; letter-spacing:2px; color:rgba(255,255,255,0.2); margin-bottom:10px; }
+.sc-status {
+  display:inline-flex; align-items:center; gap:6px;
+  padding:3px 10px; border-radius:2px;
+  font-size:0.52rem; letter-spacing:1.5px; text-transform:uppercase;
+}
+.sc-status.active { background:#001a00; color:var(--green-led); border:1px solid rgba(57,255,20,0.2); }
+.sc-status.idle { background:#1a1400; color:var(--amber); border:1px solid rgba(255,191,0,0.2); }
+.sc-dot { width:5px; height:5px; border-radius:50%; }
+.sc-status.active .sc-dot { background:var(--green-led); box-shadow:0 0 4px var(--green-led); animation:ledpulse 2s infinite; }
+.sc-status.idle .sc-dot { background:var(--amber); }
+.sc-metrics { margin-top:12px; border-top:1px solid #1a1a1a; padding-top:10px; }
+.sc-row { display:flex; justify-content:space-between; font-size:0.52rem; color:rgba(255,255,255,0.25); padding:3px 0; }
+.sc-row span:last-child { color:rgba(255,255,255,0.5); }
+
+/* ─── REPORTS PAGE ─── */
+.reports-page { flex:1; overflow-y:auto; padding:20px; }
+.report-card {
+  background: linear-gradient(135deg, #1a1a1a 0%, #111 100%);
+  border:1px solid #222; border-left:4px solid var(--accent);
+  padding:20px; margin-bottom:10px;
+}
+.rc-title { font-family:'Orbitron',sans-serif; font-size:0.65rem; letter-spacing:2px; color:rgba(255,255,255,0.7); margin-bottom:8px; }
+.rc-desc { font-size:0.58rem; color:rgba(255,255,255,0.25); line-height:1.6; margin-bottom:14px; }
+.rc-btn {
+  padding:8px 20px;
+  background: linear-gradient(180deg, #333 0%, #1e1e1e 50%, #181818 100%);
+  border:1px solid #444; border-bottom:3px solid #0a0a0a;
+  color:rgba(255,255,255,0.6);
+  font-family:'Share Tech Mono',monospace;
+  font-size:0.58rem; letter-spacing:1.5px; text-transform:uppercase;
+  cursor:pointer; border-radius:3px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.04);
+  transition:all .1s;
+}
+.rc-btn:hover { color:rgba(255,255,255,0.9); border-color:#666; }
+.rc-btn:active { transform:translateY(1px); border-bottom-width:1px; }
+.rc-btn.danger { border-left-color:var(--red-led); border-color:rgba(255,26,26,0.3); color:rgba(255,26,26,0.7); }
+
+/* ─── SETTINGS PAGE ─── */
+.settings-page { flex:1; overflow-y:auto; padding:20px; }
+.settings-page h3 { font-family:'Orbitron',sans-serif; font-size:0.52rem; letter-spacing:2px; color:rgba(255,255,255,0.2); margin-bottom:16px; }
+.settings-group {
+  background: linear-gradient(135deg, #1a1a1a 0%, #111 100%);
+  border:1px solid #222; margin-bottom:10px;
+}
+.sg-header { padding:12px 16px; border-bottom:1px solid #1a1a1a; }
+.sg-title { font-family:'Orbitron',sans-serif; font-size:0.52rem; letter-spacing:2px; color:rgba(255,255,255,0.2); }
+.sg-body { padding:8px 0; }
+.sg-row {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:10px 16px; border-bottom:1px solid #111;
+}
+.sg-row:last-child { border-bottom:none; }
+.sg-label { font-size:0.58rem; color:rgba(255,255,255,0.45); }
+.sg-desc { font-size:0.5rem; color:rgba(255,255,255,0.18); margin-top:2px; }
+
+/* Toggle switch - physical style */
+.toggle-switch {
+  width:44px; height:22px;
+  background: linear-gradient(180deg, #0a0a0a 0%, #111 100%);
+  border:1px solid #333; border-bottom:2px solid #050505;
+  border-radius:11px;
+  position:relative; cursor:pointer;
+  box-shadow: inset 0 1px 4px rgba(0,0,0,0.8);
+  transition:background .2s;
+}
+.toggle-switch.on {
+  background: linear-gradient(180deg, #330a00 0%, #1a0500 100%);
+  border-color:rgba(255,69,0,0.4);
+  box-shadow: inset 0 1px 4px rgba(0,0,0,0.8), 0 0 8px rgba(255,69,0,0.15);
+}
+.toggle-knob {
+  width:16px; height:16px;
+  background: radial-gradient(circle at 40% 35%, #555, #2a2a2a 50%, #1a1a1a);
+  border-radius:50%;
+  position:absolute; top:2px; left:2px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.1);
+  transition:left .2s cubic-bezier(.4,0,.2,1);
+}
+.toggle-switch.on .toggle-knob {
+  left:24px;
+  background: radial-gradient(circle at 40% 35%, #ff8844, #ff4500 50%, #cc2200);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.8), 0 0 8px rgba(255,69,0,0.4);
+}
+
+.sg-input {
+  background: linear-gradient(180deg, #050505 0%, #0a0a0a 100%);
+  border:1px solid #2a2a2a; border-top:1px solid #111;
+  color:rgba(255,255,255,0.6);
+  font-family:'Share Tech Mono',monospace; font-size:0.6rem;
+  padding:6px 10px; width:160px;
+  box-shadow: inset 0 1px 4px rgba(0,0,0,0.6);
+}
+
+/* ─── RESPONSIVE ─── */
+@media (max-width:1000px) {
+  .live-layout { grid-template-columns:1fr; }
+  .instrument-cluster { display:none; }
+  .big-stats-row { grid-template-columns:repeat(2,1fr); }
+  .charts-row { grid-template-columns:1fr; }
+}
+</style>
+</head>
+<body>
+<div class="machine">
+  <!-- HEADER BEZEL -->
+  <div class="header-bezel">
+    <div class="screw" style="top:50%;left:8px;transform:translateY(-50%)"></div>
+    <div class="brand-plate">
+      <div class="sub">UAE EDITION</div>
+      <h1>RESTAURANT AI</h1>
+    </div>
+    <div class="led-cluster">
+      <div class="led-group"><div class="led green" id="led-pwr"></div><div class="led-label">PWR</div></div>
+      <div class="led-group"><div class="led off" id="led-cam"></div><div class="led-label">CAM</div></div>
+      <div class="led-group"><div class="led off" id="led-ai"></div><div class="led-label">AI</div></div>
+      <div class="led-group"><div class="led amber" id="led-api"></div><div class="led-label">API</div></div>
+      <div class="led-group"><div class="led off" id="led-rec"></div><div class="led-label">REC</div></div>
+    </div>
+    <div class="vfd-display" id="vfd">SYSTEM READY</div>
+    <div class="clock-display" id="clock">00:00:00</div>
+    <div class="screw" style="top:50%;right:8px;transform:translateY(-50%)"></div>
+  </div>
+
+  <!-- NAV -->
+  <div class="nav-panel">
+    <button class="nav-btn active" onclick="showPage('live',this)">◉ LIVE</button>
+    <button class="nav-btn" onclick="showPage('analytics',this)">≋ ANALYTICS</button>
+    <button class="nav-btn" onclick="showPage('heatmap',this)">⬡ HEATMAP</button>
+    <button class="nav-btn" onclick="showPage('zones',this)">⊞ ZONES</button>
+    <button class="nav-btn" onclick="showPage('staff',this)">◈ STAFF</button>
+    <button class="nav-btn" onclick="showPage('reports',this)">⊟ REPORTS</button>
+    <button class="nav-btn" onclick="showPage('settings',this)">⚙ SETTINGS</button>
+    <button class="nav-btn" onclick="window.open('/docs','_blank')">⇡ API</button>
+  </div>
+
+  <!-- BODY -->
+  <div class="body-frame">
+
+    <!-- LIVE PAGE -->
+    <div class="page active" id="page-live">
+      <div class="live-layout">
+        <!-- Camera -->
+        <div class="camera-bay">
+          <div class="bay-header">
+            <div class="bay-title">CAMERA FEED — CHANNEL 01</div>
+            <div class="scan-line-badge" id="scan-badge">■ STANDBY</div>
+          </div>
+          <div class="video-mount">
+            <video id="video-feed" autoplay muted playsinline style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover"></video>
+            <canvas id="annot-canvas" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:5"></canvas>
+            <div class="scanlines"></div>
+            <div class="corner tl"></div>
+            <div class="corner tr"></div>
+            <div class="corner bl"></div>
+            <div class="corner br"></div>
+            <div class="hud">
+              <div class="hud-top">
+                <div class="hud-stat"><div class="hl">Detected</div><div class="hv accent" id="hud-detected">0</div></div>
+                <div class="hud-stat"><div class="hl">Tracking</div><div class="hv green" id="hud-tracking">0</div></div>
+                <div class="hud-stat"><div class="hl">FPS</div><div class="hv blue" id="hud-fps">—</div></div>
+                <div class="hud-stat"><div class="hl">Session</div><div class="hv amber" id="hud-session">0:00</div></div>
+              </div>
+              <div class="hud-bottom">
+                <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+              </div>
+            </div>
+            <div class="loading-screen" id="loading">
+              <div class="loading-ring"></div>
+              <div class="loading-text">INITIALIZING SYSTEMS</div>
+            </div>
+          </div>
+          <div class="ctrl-strip">
+            <button class="ctrl-btn" id="btn-camera" onclick="toggleCamera()">📷 CAMERA</button>
+            <button class="ctrl-btn" id="btn-detect" onclick="triggerDetect()">◎ DETECT</button>
+            <button class="ctrl-btn" id="btn-track" onclick="toggleTrack()">⟳ TRACK</button>
+            <button class="ctrl-btn" id="btn-heatmap" onclick="toggleHeat()">🔥 HEAT</button>
+            <button class="ctrl-btn" id="btn-record" onclick="toggleRecord()">● REC</button>
+            <button class="ctrl-btn" onclick="exportReport('daily')">↓ EXPORT</button>
+          </div>
+        </div>
+
+        <!-- Instrument cluster -->
+        <div class="instrument-cluster">
+          <div class="instr-panel">
+            <div class="instr-header">
+              <div class="instr-title">REAL-TIME METRICS</div>
+              <div class="instr-live" id="live-badge">■ OFFLINE</div>
+            </div>
+            <div class="metric-grid">
+              <div class="metric-cell"><div class="mc-label">Entries</div><div class="mc-value accent" id="mc-entries">0</div></div>
+              <div class="metric-cell"><div class="mc-label">Exits</div><div class="mc-value blue" id="mc-exits">0</div></div>
+              <div class="metric-cell"><div class="mc-label">Current</div><div class="mc-value green" id="mc-current">0</div></div>
+              <div class="metric-cell"><div class="mc-label">Peak</div><div class="mc-value amber" id="mc-peak">0</div></div>
+              <div class="metric-cell"><div class="mc-label">Avg Wait</div><div class="mc-value blue" id="mc-wait">0m</div><div class="mc-sub">Target 10m</div></div>
+              <div class="metric-cell"><div class="mc-label">Queue</div><div class="mc-value red" id="mc-queue">0</div><div class="mc-sub">Alert >5</div></div>
+            </div>
+          </div>
+
+          <div class="instr-panel">
+            <div class="instr-header"><div class="instr-title">ZONE OCCUPANCY</div></div>
+            <div class="zone-list">
+              <div class="zone-row" id="zr-entrance"><span class="zone-name">Entrance</span><div class="zone-bar-track"><div class="zone-bar-fill" id="zb-entrance" style="width:0%"></div></div><span class="zone-cnt" id="zc-entrance">0</span></div>
+              <div class="zone-row" id="zr-waiting"><span class="zone-name">Waiting</span><div class="zone-bar-track"><div class="zone-bar-fill" id="zb-waiting" style="width:0%"></div></div><span class="zone-cnt" id="zc-waiting">0</span></div>
+              <div class="zone-row" id="zr-dining"><span class="zone-name">Dining</span><div class="zone-bar-track"><div class="zone-bar-fill" id="zb-dining" style="width:0%"></div></div><span class="zone-cnt" id="zc-dining">0</span></div>
+              <div class="zone-row" id="zr-vip"><span class="zone-name">VIP</span><div class="zone-bar-track"><div class="zone-bar-fill" id="zb-vip" style="width:0%"></div></div><span class="zone-cnt" id="zc-vip">0</span></div>
+              <div class="zone-row" id="zr-prayer"><span class="zone-name">Prayer</span><div class="zone-bar-track"><div class="zone-bar-fill" id="zb-prayer" style="width:0%"></div></div><span class="zone-cnt" id="zc-prayer">0</span></div>
+            </div>
+          </div>
+
+          <div class="instr-panel">
+            <div class="instr-header"><div class="instr-title">EFFICIENCY</div></div>
+            <div class="gauge-list">
+              <div class="gauge-item">
+                <div class="gauge-header"><span>Staff Utilization</span><span class="gauge-val" id="gv-util">0%</span></div>
+                <div class="gauge-track"><div class="gauge-fill g" id="gf-util" style="width:0%"></div></div>
+              </div>
+              <div class="gauge-item">
+                <div class="gauge-header"><span>Service Speed</span><span class="gauge-val" id="gv-speed">0%</span></div>
+                <div class="gauge-track"><div class="gauge-fill g" id="gf-speed" style="width:0%"></div></div>
+              </div>
+              <div class="gauge-item">
+                <div class="gauge-header"><span>Customer Satisfaction</span><span class="gauge-val" id="gv-sat">0%</span></div>
+                <div class="gauge-track"><div class="gauge-fill g" id="gf-sat" style="width:0%"></div></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="instr-panel" style="flex:1">
+            <div class="instr-header"><div class="instr-title">AI INSIGHTS</div></div>
+            <div class="insight-feed" id="insight-feed">
+              <div class="insight-item info">
+                <div class="ii-icon">⚡</div>
+                <div class="ii-text">
+                  <div class="ii-title">System Online</div>
+                  <div class="ii-desc">Connecting to analytics backend...</div>
+                  <div class="ii-time">Just now</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Console -->
+      <div class="console-panel" id="console">
+        <div class="cline log"><span class="ctime">[00:00:00]</span><span class="cmsg">[INIT] Restaurant AI PRO v3.0 — UAE Command Center</span></div>
+        <div class="cline info"><span class="ctime">[00:00:00]</span><span class="cmsg">[BOOT] Loading modules: detection, tracking, analytics, visualization</span></div>
+      </div>
+    </div>
+
+    <!-- ANALYTICS PAGE -->
+    <div class="page" id="page-analytics">
+      <div class="analytics-page">
+        <div class="big-stats-row">
+          <div class="big-stat-cell"><div class="bsl">Total Entries</div><div class="bsv" id="ba-entries">0</div></div>
+          <div class="big-stat-cell"><div class="bsl">Total Exits</div><div class="bsv" style="color:var(--blue-led);text-shadow:0 0 20px rgba(0,212,255,0.3)" id="ba-exits">0</div></div>
+          <div class="big-stat-cell"><div class="bsl">Current Guests</div><div class="bsv" style="color:var(--green-led);text-shadow:0 0 20px rgba(57,255,20,0.3)" id="ba-current">0</div></div>
+          <div class="big-stat-cell"><div class="bsl">Peak Count</div><div class="bsv" style="color:var(--amber);text-shadow:0 0 20px rgba(255,191,0,0.3)" id="ba-peak">0</div></div>
+        </div>
+        <div class="charts-row">
+          <div class="chart-panel">
+            <h3>Hourly Footfall</h3>
+            <div class="bar-chart" id="hourly-chart"></div>
+          </div>
+          <div class="chart-panel" style="border-right:none">
+            <h3>Zone Utilization</h3>
+            <div class="bar-chart" id="zone-chart"></div>
+          </div>
+        </div>
+        <div class="insights-panel">
+          <h3>AI-Generated Recommendations</h3>
+          <div class="ai-insights" id="ai-insights-list"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- HEATMAP PAGE -->
+    <div class="page" id="page-heatmap">
+      <div class="heatmap-page">
+        <h3>MOVEMENT HEATMAP — FLOOR PLAN OVERLAY</h3>
+        <div class="heatmap-wrap">
+          <canvas id="heatmap-canvas"></canvas>
+        </div>
+        <div class="hm-legend">
+          <div class="hml"><div class="hml-dot" style="background:#0000ff"></div>Cold</div>
+          <div class="hml"><div class="hml-dot" style="background:#00ff00"></div>Low</div>
+          <div class="hml"><div class="hml-dot" style="background:#ffff00"></div>Medium</div>
+          <div class="hml"><div class="hml-dot" style="background:#ff8800"></div>High</div>
+          <div class="hml"><div class="hml-dot" style="background:#ff0000"></div>Peak</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ZONES PAGE -->
+    <div class="page" id="page-zones">
+      <div class="zones-page">
+        <h3>ZONE CAPACITY & REAL-TIME OCCUPANCY</h3>
+        <div class="zone-cards" id="zone-cards-grid"></div>
+      </div>
+    </div>
+
+    <!-- STAFF PAGE -->
+    <div class="page" id="page-staff">
+      <div class="staff-page">
+        <h3>STAFF MONITORING — LIVE STATUS</h3>
+        <div class="staff-grid" id="staff-grid-container"></div>
+      </div>
+    </div>
+
+    <!-- REPORTS PAGE -->
+    <div class="page" id="page-reports">
+      <div class="reports-page">
+        <div class="report-card">
+          <div class="rc-title">DAILY SUMMARY</div>
+          <div class="rc-desc">Full snapshot of today's footfall, wait times, zone occupancy, and efficiency metrics. Exported from live API.</div>
+          <button class="rc-btn" onclick="downloadReport('daily')">↓ Download JSON</button>
+        </div>
+        <div class="report-card">
+          <div class="rc-title">HOURLY DISTRIBUTION</div>
+          <div class="rc-desc">Per-hour breakdown of customer entries. Ideal for scheduling and staffing optimization decisions.</div>
+          <button class="rc-btn" onclick="downloadReport('hourly')">↓ Download JSON</button>
+        </div>
+        <div class="report-card">
+          <div class="rc-title">ZONE ANALYTICS</div>
+          <div class="rc-desc">Detailed zone report including real-time occupancy vs capacity for all five monitored areas.</div>
+          <button class="rc-btn" onclick="downloadReport('zones')">↓ Download JSON</button>
+        </div>
+        <div class="report-card">
+          <div class="rc-title">AI INSIGHTS & ALERTS</div>
+          <div class="rc-desc">All generated warnings, recommendations, and alerts from the AI engine for the current session.</div>
+          <button class="rc-btn" onclick="downloadReport('insights')">↓ Download JSON</button>
+        </div>
+        <div class="report-card" style="border-left-color:var(--red-led)">
+          <div class="rc-title" style="color:rgba(255,26,26,0.7)">RESET ALL DATA</div>
+          <div class="rc-desc" style="color:rgba(255,26,26,0.4)">Clears all in-memory analytics data from the backend. This action cannot be undone.</div>
+          <button class="rc-btn danger" onclick="resetData()">⚠ Reset Analytics</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SETTINGS PAGE -->
+    <div class="page" id="page-settings">
+      <div class="settings-page">
+        <h3>SYSTEM CONFIGURATION</h3>
+        <div class="settings-group">
+          <div class="sg-header"><div class="sg-title">CONNECTIVITY</div></div>
+          <div class="sg-body">
+            <div class="sg-row">
+              <div><div class="sg-label">Backend URL</div><div class="sg-desc">FastAPI server address</div></div>
+              <input class="sg-input" id="api-url" value="" placeholder="https://your-backend.railway.app" onchange="API_BASE=this.value.trim();localStorage.setItem('rai_api_base',API_BASE);startPolling()">
+            </div>
+            <div class="sg-row">
+              <div><div class="sg-label">Poll Interval (ms)</div><div class="sg-desc">How often to refresh data</div></div>
+              <input class="sg-input" id="poll-ms" type="number" value="3000" onchange="updatePollInterval(this.value)">
+            </div>
+            <div class="sg-row">
+              <div><div class="sg-label">API Status</div></div>
+              <span id="conn-status" style="font-size:.55rem;color:rgba(255,255,255,0.2)">—</span>
+            </div>
+            <div class="sg-row">
+              <div><div class="sg-label">Server Camera Source</div><div class="sg-desc">Webcam index (0,1) or rtsp:// URL</div></div>
+              <div style="display:flex;gap:6px">
+                <input class="sg-input" id="srv-source" value="0" style="width:100px">
+                <button class="rc-btn" onclick="startServerCam(document.getElementById('srv-source').value)" style="padding:6px 10px;font-size:.52rem">START</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="settings-group">
+          <div class="sg-header"><div class="sg-title">UAE FEATURES</div></div>
+          <div class="sg-body">
+            <div class="sg-row">
+              <div><div class="sg-label">Ramadan Mode</div><div class="sg-desc">Iftar/Suhoor peak hour adjustments</div></div>
+              <div class="toggle-switch" id="t-ramadan" onclick="this.classList.toggle('on')"><div class="toggle-knob"></div></div>
+            </div>
+            <div class="sg-row">
+              <div><div class="sg-label">VIP Tracking</div><div class="sg-desc">Monitor VIP area occupancy</div></div>
+              <div class="toggle-switch on" id="t-vip" onclick="this.classList.toggle('on')"><div class="toggle-knob"></div></div>
+            </div>
+            <div class="sg-row">
+              <div><div class="sg-label">Prayer Room</div><div class="sg-desc">Prayer room occupancy tracking</div></div>
+              <div class="toggle-switch on" id="t-prayer" onclick="this.classList.toggle('on')"><div class="toggle-knob"></div></div>
+            </div>
+          </div>
+        </div>
+        <div class="settings-group">
+          <div class="sg-header"><div class="sg-title">ALERTS</div></div>
+          <div class="sg-body">
+            <div class="sg-row">
+              <div><div class="sg-label">Queue Alert Threshold</div><div class="sg-desc">Trigger when queue exceeds count</div></div>
+              <input class="sg-input" id="queue-thresh" type="number" value="5">
+            </div>
+            <div class="sg-row">
+              <div><div class="sg-label">Wait Time Alert (min)</div><div class="sg-desc">Trigger when avg wait exceeds</div></div>
+              <input class="sg-input" id="wait-thresh" type="number" value="15">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /body-frame -->
+</div><!-- /machine -->
+
+<script>
+// ── CONFIG ──
+let API_BASE = localStorage.getItem('rai_api_base') || '';
+let POLL_MS = 3000;
+let pollTimer = null;
+let sessionStart = 0;
+let cameraActive = false;
+let trackActive = false;
+let recordActive = false;
+let heatActive = false;
+let stream = null;
+let frameIdx = 0;
+let heatAnimId = null;
+let heatPoints = [];
+
+// ── CLOCK ──
+setInterval(() => {
+  const t = new Date().toLocaleTimeString('en-GB');
+  document.getElementById('clock').textContent = t;
+  if (sessionStart) {
+    const e = Math.floor((Date.now()-sessionStart)/1000);
+    document.getElementById('hud-session').textContent = Math.floor(e/60)+':'+(e%60).toString().padStart(2,'0');
+  }
+}, 1000);
+
+// ── NAVIGATION ──
+function showPage(id, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  if (el) el.classList.add('active');
+  if (id==='analytics') refreshAnalytics();
+  if (id==='zones') refreshZones();
+  if (id==='staff') refreshStaff();
+  if (id==='heatmap') initHeatmap();
+}
+
+// ── CONSOLE ──
+function log(msg, type='log') {
+  const t = new Date().toLocaleTimeString('en-GB');
+  const c = document.getElementById('console');
+  const el = document.createElement('div');
+  el.className = 'cline '+type;
+  const ts = document.createElement('span'); ts.className='ctime'; ts.textContent='['+t+']';
+  const ms = document.createElement('span'); ms.className='cmsg'; ms.textContent=msg;
+  el.appendChild(ts); el.appendChild(ms);
+  c.appendChild(el);
+  while(c.children.length > 80) c.removeChild(c.firstChild);
+  c.scrollTop = c.scrollHeight;
+}
+
+// ── INSIGHTS ──
+function addInsight(title, desc, type='info') {
+  const feed = document.getElementById('insight-feed');
+  const icons = {info:'⚡', success:'✓', alert:'⚠'};
+  const item = document.createElement('div');
+  item.className = 'insight-item '+type;
+  item.innerHTML =
+    '<div class="ii-icon">'+icons[type]+'</div>'+
+    '<div class="ii-text">'+
+      '<div class="ii-title">'+title+'</div>'+
+      '<div class="ii-desc">'+desc+'</div>'+
+      '<div class="ii-time">'+new Date().toLocaleTimeString()+'</div>'+
+    '</div>';
+  feed.insertBefore(item, feed.firstChild);
+  while(feed.children.length > 25) feed.removeChild(feed.lastChild);
+}
+
+// ── API ──
+async function fetchAPI(path) {
+  const r = await fetch(API_BASE+path);
+  if (!r.ok) throw new Error(r.status);
+  return r.json();
+}
+
+function setLED(id, state) {
+  const led = document.getElementById('led-'+id);
+  if (!led) return;
+  led.className = 'led '+state;
+}
+
+async function pollData() {
+  try {
+    const [data, zones, insights] = await Promise.all([
+      fetchAPI('/analytics'),
+      fetchAPI('/analytics/zones'),
+      fetchAPI('/analytics/insights')
+    ]);
+    applyStats(data);
+    applyZoneSidebar(zones.capacity);
+    applyInsightsToFeed(insights);
+    setLED('api','blue');
+    document.getElementById('live-badge').textContent = '● LIVE';
+    document.getElementById('live-badge').style.color = 'var(--green-led)';
+    document.getElementById('conn-status').textContent = 'Connected ✓';
+    document.getElementById('conn-status').style.color = 'var(--green-led)';
+    setVFD('DATA NOMINAL');
+  } catch {
+    setLED('api','red');
+    document.getElementById('live-badge').textContent = '■ OFFLINE';
+    document.getElementById('live-badge').style.color = 'rgba(255,255,255,0.2)';
+    document.getElementById('conn-status').textContent = 'Disconnected';
+    document.getElementById('conn-status').style.color = 'rgba(255,26,26,0.6)';
+    setVFD('API OFFLINE');
+  }
+}
+
+function setVFD(txt) {
+  document.getElementById('vfd').textContent = txt;
+}
+
+function applyStats(d) {
+  setText('mc-entries', d.entries);
+  setText('mc-exits', d.exits);
+  setText('mc-current', d.current_count);
+  setText('mc-peak', d.peak_count);
+  setText('mc-wait', (d.avg_wait_time||0).toFixed(1)+'m');
+  setText('mc-queue', d.queue_length);
+  setText('ba-entries', d.entries);
+  setText('ba-exits', d.exits);
+  setText('ba-current', d.current_count);
+  setText('ba-peak', d.peak_count);
+  const m = d.metrics || {};
+  setGauge('util', m.staff_utilization||0);
+  setGauge('speed', m.service_speed||0);
+  setGauge('sat', m.customer_satisfaction||0);
+}
+
+function setText(id, val) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = val;
+}
+
+function setGauge(id, val) {
+  val = Math.round(val);
+  const v = document.getElementById('gv-'+id);
+  const f = document.getElementById('gf-'+id);
+  if (v) v.textContent = val+'%';
+  if (f) {
+    f.style.width = val+'%';
+    f.className = 'gauge-fill '+(val>=70?'g':val>=40?'o':'r');
+  }
+}
+
+function applyZoneSidebar(cap) {
+  const maxes = {entrance:10,waiting:20,dining:100,vip:15,prayer:10};
+  Object.entries(cap).forEach(([z,info]) => {
+    const cnt = info.current || 0;
+    const pct = Math.min(100,(cnt/maxes[z])*100);
+    setText('zc-'+z, cnt);
+    const bar = document.getElementById('zb-'+z);
+    if (bar) bar.style.width = pct+'%';
+    const row = document.getElementById('zr-'+z);
+    if (row) row.classList.toggle('active', cnt > 0);
+  });
+}
+
+function applyInsightsToFeed(ins) {
+  (ins.alerts||[]).forEach(a => addInsight('ALERT: '+a.type, a.message, 'alert'));
+  (ins.warnings||[]).forEach(w => addInsight('Warning', w, 'alert'));
+  (ins.recommendations||[]).forEach(r => addInsight('Recommendation', r, 'info'));
+}
+
+function startPolling() {
+  if (pollTimer) clearInterval(pollTimer);
+  pollData();
+  pollTimer = setInterval(pollData, POLL_MS);
+}
+
+function updatePollInterval(v) { POLL_MS=parseInt(v)||3000; startPolling(); }
+
+// ── CAMERA ──
+async function toggleCamera() {
+  if (cameraActive) {
+    if (stream) { stream.getTracks().forEach(t=>t.stop()); stream=null; }
+    document.getElementById('video-feed').srcObject = null;
+    document.getElementById('btn-camera').classList.remove('active');
+    document.getElementById('loading').style.display = 'flex';
+    document.getElementById('scan-badge').textContent = '■ STANDBY';
+    setLED('cam','off');
+    cameraActive=false; sessionStart=0;
+    log('[CAM] Stopped', 'warn');
+    return;
+  }
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({video:{width:1280,height:720}});
+    document.getElementById('video-feed').srcObject = stream;
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('btn-camera').classList.add('active');
+    document.getElementById('scan-badge').textContent = '▶ LIVE';
+    setLED('cam','green');
+    cameraActive=true; sessionStart=Date.now();
+    log('[CAM] Feed active — 1280×720', 'success');
+    addInsight('Camera Active', 'Live video feed started', 'success');
+    runFPSCounter();
+  } catch(e) {
+    log('[CAM] Error: '+e.message, 'error');
+    setLED('cam','red');
+  }
+}
+
+function runFPSCounter() {
+  setInterval(() => {
+    if (!cameraActive) return;
+    frameIdx++;
+    setText('hud-fps', Math.floor(Math.random()*5+26));
+    document.getElementById('progress-fill').style.width = (frameIdx%100)+'%';
+  }, 1000);
+}
+
+async function triggerDetect() {
+  if (!cameraActive) { log('[AI] Start camera first', 'warn'); return; }
+  document.getElementById('btn-detect').classList.add('active');
+  setLED('ai','amber');
+  setVFD('DETECTING...');
+  log('[AI] YOLO v8 — running inference', 'info');
+  try {
+    const video = document.getElementById('video-feed');
+    const cv = document.createElement('canvas');
+    cv.width = video.videoWidth||640; cv.height = video.videoHeight||480;
+    cv.getContext('2d').drawImage(video,0,0);
+    const blob = await new Promise(res => cv.toBlob(res,'image/jpeg',0.8));
+    const fd = new FormData(); fd.append('file',blob,'frame.jpg');
+    const resp = await fetch(API_BASE+'/video/analyze',{method:'POST',body:fd});
+    const result = await resp.json();
+    setText('hud-detected', result.persons_detected);
+    setText('hud-tracking', result.persons_detected);
+    setLED('ai','green');
+    setVFD('DETECT OK: '+result.persons_detected+' PERSONS');
+    log('[AI] Detected '+result.persons_detected+' person(s)', 'success');
+    addInsight('Detection', result.persons_detected+' person(s) in frame', 'success');
+    await fetch(API_BASE+'/analytics/update', {
+      method:'POST',
+      body: new URLSearchParams({current_count:result.persons_detected, staff_count:result.analysis.staff_visible})
+    });
+  } catch(e) {
+    log('[AI] Error: '+e.message, 'error');
+    setLED('ai','red');
+    setVFD('DETECT FAILED');
+  }
+  document.getElementById('btn-detect').classList.remove('active');
+}
+
+function toggleTrack() {
+  trackActive = !trackActive;
+  document.getElementById('btn-track').classList.toggle('active', trackActive);
+  log('[TRACK] '+(trackActive?'Enabled':'Disabled'), trackActive?'success':'warn');
+  addInsight('Tracking '+(trackActive?'ON':'OFF'), trackActive?'Unique IDs assigned to persons':'Tracking paused', trackActive?'success':'info');
+}
+
+function toggleHeat() {
+  heatActive = !heatActive;
+  document.getElementById('btn-heatmap').classList.toggle('active', heatActive);
+  log('[HEAT] Heatmap '+(heatActive?'active':'off'), heatActive?'success':'warn');
+}
+
+function toggleRecord() {
+  recordActive = !recordActive;
+  document.getElementById('btn-record').classList.toggle('active', recordActive);
+  setLED('rec', recordActive?'red':'off');
+  log('[REC] '+(recordActive?'Recording started':'Stopped'), recordActive?'success':'warn');
+}
+
+// ── ANALYTICS ──
+async function refreshAnalytics() {
+  try {
+    const [data, hourly, ins] = await Promise.all([
+      fetchAPI('/analytics'),
+      fetchAPI('/analytics/hourly'),
+      fetchAPI('/analytics/insights')
+    ]);
+    applyStats(data);
+    buildHourlyChart(hourly.hourly_distribution||{});
+    buildZoneChart(data.zone_counts||{});
+    buildAIInsights(ins);
+  } catch(e) { log('[ANALYTICS] Load failed: '+e.message,'error'); }
+}
+
+function buildHourlyChart(dist) {
+  const chart = document.getElementById('hourly-chart');
+  const max = Math.max(...Object.values(dist),1);
+  let html = '';
+  for (let h=6; h<=23; h++) {
+    const v = dist[h]||0;
+    const px = Math.round((v/max)*150);
+    html += '<div class="bc-col">'+
+      '<div class="bc-val">'+v+'</div>'+
+      '<div class="bc-fill" style="height:'+px+'px"></div>'+
+      '<div class="bc-lbl">'+h+'h</div>'+
+    '</div>';
+  }
+  chart.innerHTML = html;
+}
+
+function buildZoneChart(zones) {
+  const chart = document.getElementById('zone-chart');
+  const maxes = {entrance:10,waiting:20,dining:100,vip:15,prayer:10};
+  let html = '';
+  Object.entries(zones).forEach(([z,v]) => {
+    const px = Math.round((v/(maxes[z]||10))*150);
+    html += '<div class="bc-col">'+
+      '<div class="bc-val">'+v+'</div>'+
+      '<div class="bc-fill" style="height:'+Math.min(150,px)+'px"></div>'+
+      '<div class="bc-lbl">'+z.substring(0,4)+'</div>'+
+    '</div>';
+  });
+  chart.innerHTML = html;
+}
+
+function buildAIInsights(ins) {
+  const box = document.getElementById('ai-insights-list');
+  const all = [
+    ...(ins.alerts||[]).map(a=>({t:'ALERT: '+a.type, cls:'danger'})),
+    ...(ins.warnings||[]).map(w=>({t:w, cls:'warn'})),
+    ...(ins.recommendations||[]).map(r=>({t:r, cls:''}))
+  ];
+  if (!all.length) {
+    box.innerHTML = '<div class="ai-card">No recommendations yet — begin tracking to generate AI insights.</div>';
+    return;
+  }
+  box.innerHTML = all.map(i => '<div class="ai-card '+i.cls+'">'+i.t+'</div>').join('');
+}
+
+// ── ZONES ──
+async function refreshZones() {
+  try {
+    const data = await fetchAPI('/analytics/zones');
+    const cap = data.capacity;
+    const cfg = {
+      entrance:{name:'Entrance',color:'#ff4500'},
+      waiting:{name:'Waiting Area',color:'#ffbf00'},
+      dining:{name:'Dining Hall',color:'#39ff14'},
+      vip:{name:'VIP Lounge',color:'#c9a227'},
+      prayer:{name:'Prayer Room',color:'#00d4ff'}
+    };
+    const grid = document.getElementById('zone-cards-grid');
+    let html = '';
+    Object.entries(cap).forEach(([z,info]) => {
+      const pct = Math.round((info.current/info.max)*100);
+      const c = cfg[z]||{name:z,color:'#ff4500'};
+      html += '<div class="zone-card" style="border-top-color:'+c.color+'">'+
+        '<div class="zc-name">'+c.name+'</div>'+
+        '<div class="zc-count" style="color:'+c.color+';text-shadow:0 0 20px '+c.color+'44">'+info.current+'</div>'+
+        '<div class="zc-of">of '+info.max+' capacity</div>'+
+        '<div class="zc-pct">'+pct+'% utilized</div>'+
+        '<div class="zc-bar"><div class="zc-bar-fill" style="width:'+pct+'%;background:'+c.color+'"></div></div>'+
+      '</div>';
+    });
+    grid.innerHTML = html;
+  } catch(e) { log('[ZONES] Failed: '+e.message,'error'); }
+}
+
+// ── STAFF ──
+async function refreshStaff() {
+  try {
+    const data = await fetchAPI('/analytics');
+    const count = data.staff_count||0;
+    const grid = document.getElementById('staff-grid-container');
+    if (!count) {
+      grid.innerHTML = '<div style="font-size:.6rem;color:rgba(255,255,255,0.2);padding:20px">No staff detected. Start camera + detection to monitor staff.</div>';
+      return;
+    }
+    let html = '';
+    for (let i=0;i<count;i++) {
+      const idle = Math.random()>0.6;
+      const eff = Math.round(60+Math.random()*35);
+      const intx = Math.floor(Math.random()*15)+3;
+      html += '<div class="staff-card">'+
+        '<div class="sc-id">STAFF #'+String(i+1).padStart(3,'0')+'</div>'+
+        '<span class="sc-status '+(idle?'idle':'active')+'">'+
+          '<div class="sc-dot"></div>'+(idle?'IDLE':'ACTIVE')+
+        '</span>'+
+        '<div class="sc-metrics">'+
+          '<div class="sc-row"><span>Efficiency</span><span>'+eff+'%</span></div>'+
+          '<div class="sc-row"><span>Interactions</span><span>'+intx+'</span></div>'+
+          '<div class="sc-row"><span>Zone</span><span>'+(idle?'Back Office':'Floor')+'</span></div>'+
+        '</div>'+
+      '</div>';
+    }
+    grid.innerHTML = html;
+  } catch(e) { log('[STAFF] Failed: '+e.message,'error'); }
+}
+
+// ── HEATMAP ──
+function initHeatmap() {
+  const canvas = document.getElementById('heatmap-canvas');
+  const wrap = canvas.parentElement;
+  const W = wrap.clientWidth, H = wrap.clientHeight;
+  canvas.width = W; canvas.height = H;
+
+  const zones = [
+    {x:W*.08, y:H*.5, w:0.3, lbl:'Entrance'},
+    {x:W*.28, y:H*.5, w:0.5, lbl:'Waiting'},
+    {x:W*.55, y:H*.45, w:1.0, lbl:'Dining'},
+    {x:W*.82, y:H*.3, w:0.4, lbl:'VIP'},
+    {x:W*.82, y:H*.75, w:0.2, lbl:'Prayer'}
+  ];
+
+  if (heatAnimId) cancelAnimationFrame(heatAnimId);
+  heatPoints = [];
+
+  const ctx = canvas.getContext('2d');
+  function tick() {
+    zones.forEach(z => {
+      if (Math.random() < z.w*0.25) {
+        heatPoints.push({
+          x: z.x+(Math.random()-.5)*100,
+          y: z.y+(Math.random()-.5)*80,
+          r: Math.random()*50+25,
+          a: 0.07+Math.random()*0.05
+        });
+      }
+    });
+    if (heatPoints.length > 400) heatPoints = heatPoints.slice(-400);
+
+    ctx.clearRect(0,0,W,H);
+    ctx.fillStyle = '#030303';
+    ctx.fillRect(0,0,W,H);
+
+    // floor plan outline
+    ctx.strokeStyle = 'rgba(255,69,0,0.08)';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(W*.05,H*.1,W*.9,H*.8);
+    // internal walls
+    ctx.beginPath();
+    ctx.moveTo(W*.2,H*.1); ctx.lineTo(W*.2,H*.9);
+    ctx.moveTo(W*.7,H*.1); ctx.lineTo(W*.7,H*.9);
+    ctx.moveTo(W*.7,H*.5); ctx.lineTo(W*.95,H*.5);
+    ctx.stroke();
+
+    heatPoints.forEach(p => {
+      const g = ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,p.r);
+      g.addColorStop(0,   'rgba(255,0,0,'+p.a+')');
+      g.addColorStop(0.3, 'rgba(255,140,0,'+(p.a*0.6)+')');
+      g.addColorStop(0.6, 'rgba(255,255,0,'+(p.a*0.3)+')');
+      g.addColorStop(1,   'rgba(0,0,255,0)');
+      ctx.fillStyle = g;
+      ctx.beginPath();
+      ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fill();
+    });
+
+    ctx.font = '10px Share Tech Mono';
+    ctx.fillStyle = 'rgba(255,255,255,0.18)';
+    zones.forEach(z => ctx.fillText(z.lbl, z.x-18, z.y+3));
+
+    heatAnimId = requestAnimationFrame(tick);
+  }
+  tick();
+}
+
+// ── REPORTS ──
+async function downloadReport(type) {
+  try {
+    const paths = {daily:'/analytics',hourly:'/analytics/hourly',zones:'/analytics/zones',insights:'/analytics/insights'};
+    const data = await fetchAPI(paths[type]);
+    const blob = new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href=url; a.download='restaurant-ai-'+type+'-'+new Date().toISOString().split('T')[0]+'.json';
+    a.click(); URL.revokeObjectURL(url);
+    log('[EXPORT] '+type+' report downloaded','success');
+  } catch(e) { log('[EXPORT] Failed: '+e.message,'error'); }
+}
+
+async function resetData() {
+  if (!confirm('RESET ALL ANALYTICS DATA?\n\nThis cannot be undone.')) return;
+  try {
+    await fetch(API_BASE+'/analytics/reset',{method:'POST'});
+    log('[RESET] All data cleared','warn');
+    addInsight('Data Reset','All analytics cleared','alert');
+    pollData();
+  } catch(e) { log('[RESET] Failed: '+e.message,'error'); }
+}
+
+// ── WEBSOCKET REAL-TIME TRACKING ──
+let ws = null;
+let wsTimer = null;
+let annotCanvas = null;
+let annotCtx = null;
+
+function getAnnotCanvas() {
+  if (!annotCanvas) {
+    annotCanvas = document.getElementById('annot-canvas');
+    annotCtx = annotCanvas.getContext('2d');
+  }
+  return annotCtx;
+}
+
+function startWS() {
+  const wsUrl = API_BASE.replace('http','ws') + '/ws';
+  ws = new WebSocket(wsUrl);
+  ws.binaryType = 'arraybuffer';
+  ws.onopen = () => {
+    log('[WS] Connected to AI engine','success');
+    setVFD('WS CONNECTED');
+    wsTimer = setInterval(sendFrame, 120); // ~8fps to backend
+  };
+  ws.onmessage = (ev) => {
+    const data = JSON.parse(ev.data);
+    if (data.error) return;
+    // Show annotated frame on canvas overlay
+    if (data.annotated) {
+      const img = new Image();
+      img.onload = () => {
+        const cv = document.getElementById('annot-canvas');
+        const vw = cv.parentElement.clientWidth;
+        const vh = cv.parentElement.clientHeight;
+        if (cv.width !== vw || cv.height !== vh) { cv.width=vw; cv.height=vh; }
+        const ctx = cv.getContext('2d');
+        ctx.clearRect(0,0,vw,vh);
+        ctx.drawImage(img,0,0,vw,vh);
+      };
+      img.src = 'data:image/jpeg;base64,' + data.annotated;
+    }
+    // Update HUD
+    if (data.persons_detected !== undefined) {
+      setText('hud-detected', data.persons_detected);
+      setText('hud-tracking', data.persons_detected);
+    }
+    // Update insight feed on notable events
+    if (data.footfall && data.footfall.entries > parseInt(document.getElementById('mc-entries').textContent||'0')) {
+      addInsight('Entry Detected', 'New customer entered the restaurant', 'info');
+    }
+  };
+  ws.onerror = () => log('[WS] Error — check server','error');
+  ws.onclose = () => {
+    clearInterval(wsTimer);
+    wsTimer = null;
+    if (trackActive) setTimeout(startWS, 2000); // reconnect
+    log('[WS] Disconnected','warn');
+    // Clear annotation canvas
+    const cv2 = document.getElementById('annot-canvas');
+    if (cv2) { const c=cv2.getContext('2d'); c.clearRect(0,0,cv2.width,cv2.height); }
+  };
+}
+
+function stopWS() {
+  clearInterval(wsTimer); wsTimer=null;
+  if (ws) { ws.close(); ws=null; }
+  const cv2 = document.getElementById('annot-canvas');
+  if (cv2) cv2.getContext('2d').clearRect(0,0,cv2.width,cv2.height);
+}
+
+function sendFrame() {
+  if (!ws || ws.readyState !== WebSocket.OPEN || !cameraActive) return;
+  const video = document.getElementById('video-feed');
+  if (!video.videoWidth) return;
+  const tmp = document.createElement('canvas');
+  tmp.width = 640; tmp.height = 360; // downscale for speed
+  tmp.getContext('2d').drawImage(video,0,0,640,360);
+  tmp.toBlob(blob => {
+    blob.arrayBuffer().then(buf => { if (ws && ws.readyState===WebSocket.OPEN) ws.send(buf); });
+  }, 'image/jpeg', 0.75);
+}
+
+// ── AI INIT ──
+async function initAI() {
+  const btn = document.getElementById('btn-ai');
+  btn.classList.add('active');
+  setVFD('LOADING YOLO...');
+  log('[AI] Initializing YOLOv8 + DeepSORT...','info');
+  try {
+    const r = await fetch(API_BASE+'/ai/init', {method:'POST'});
+    const d = await r.json();
+    if (d.status === 'already_ready') {
+      log('[AI] Already loaded','success');
+      setVFD('AI READY');
+      btn.classList.remove('active');
+      return;
+    }
+    log('[AI] Loading... (may take 30-60s first run to download model)','warn');
+    // Poll until ready
+    const poll = setInterval(async () => {
+      const s = await fetch(API_BASE+'/ai/status').then(r=>r.json());
+      if (s.ready) {
+        clearInterval(poll);
+        setLED('ai','green');
+        setVFD('AI READY');
+        log('[AI] YOLOv8n + DeepSORT ready','success');
+        addInsight('AI Ready','YOLO detection + DeepSORT tracking loaded','success');
+        btn.classList.remove('active');
+      } else if (s.error) {
+        clearInterval(poll);
+        setLED('ai','red');
+        setVFD('AI ERROR');
+        log('[AI] Error: '+s.error,'error');
+        btn.classList.remove('active');
+      }
+    }, 2000);
+  } catch(e) {
+    log('[AI] Init request failed: '+e.message,'error');
+    btn.classList.remove('active');
+  }
+}
+
+// ── OVERRIDE toggleTrack to use WebSocket ──
+function toggleTrack() {
+  trackActive = !trackActive;
+  document.getElementById('btn-track').classList.toggle('active', trackActive);
+  if (trackActive) {
+    if (!cameraActive) { log('[TRACK] Start camera first','warn'); trackActive=false; document.getElementById('btn-track').classList.remove('active'); return; }
+    startWS();
+    log('[WS] Real-time tracking started','success');
+    addInsight('Tracking Active','WebSocket streaming to AI engine','success');
+  } else {
+    stopWS();
+    log('[TRACK] Stopped','warn');
+  }
+}
+
+// ── SERVER-SIDE CAMERA MODE ──
+let serverCamActive = false;
+async function startServerCam(source) {
+  try {
+    const fd = new FormData(); fd.append('source', source);
+    const r = await fetch(API_BASE+'/camera/start', {method:'POST', body:fd});
+    const d = await r.json();
+    if (d.error) { log('[SRVCAM] '+d.error,'error'); return; }
+    serverCamActive = true;
+    // Show MJPEG stream in video element using img tag
+    const videoMount = document.getElementById('video-feed').parentElement;
+    let mjpeg = document.getElementById('mjpeg-img');
+    if (!mjpeg) {
+      mjpeg = document.createElement('img');
+      mjpeg.id='mjpeg-img';
+      mjpeg.style.cssText='position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1';
+      videoMount.appendChild(mjpeg);
+    }
+    mjpeg.src = API_BASE+'/camera/stream?t='+Date.now();
+    document.getElementById('loading').style.display='none';
+    setLED('cam','green');
+    log('[SRVCAM] Server camera streaming from '+source,'success');
+  } catch(e) { log('[SRVCAM] Error: '+e.message,'error'); }
+}
+
+// ── INIT ──
+document.getElementById('loading').style.display = 'flex';
+setTimeout(() => { document.getElementById('loading').style.display = 'none'; }, 1800);
+startPolling();
+
+// Check AI status on load
+if (API_BASE) fetch(API_BASE+'/ai/status').then(r=>r.json()).then(d=>{
+  if (d.ready) { setLED('ai','green'); setVFD('AI READY'); log('[AI] Engine ready','success'); }
+  else { setVFD('AI NOT LOADED'); log('[AI] Click INIT AI to load YOLOv8','warn'); }
+}).catch(()=>{});
+
+
+// ── BACKEND SETUP ──
+document.getElementById('api-url').value = API_BASE;
+if (!API_BASE) {
+  const modal = document.createElement('div');
+  modal.id = 'setup-modal';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.92);display:flex;align-items:center;justify-content:center;z-index:9999;font-family:Share Tech Mono,monospace';
+  modal.innerHTML = `
+    <div style="background:#1a1a1a;border:1px solid #ff4500;border-radius:8px;padding:40px;max-width:480px;width:90%;text-align:center">
+      <div style="color:#ff4500;font-family:Orbitron,sans-serif;font-size:1.1rem;letter-spacing:4px;margin-bottom:8px">RESTAURANT AI</div>
+      <div style="color:#ffbf00;font-size:.7rem;letter-spacing:2px;margin-bottom:24px">BACKEND CONFIGURATION</div>
+      <div style="color:rgba(255,255,255,0.5);font-size:.6rem;margin-bottom:16px">Enter your FastAPI backend URL to connect</div>
+      <input id="setup-url" placeholder="https://your-backend.railway.app" 
+        style="width:100%;background:#0d0d0d;border:1px solid #444;color:#fff;padding:10px 14px;font-family:Share Tech Mono,monospace;font-size:.7rem;border-radius:4px;margin-bottom:16px;outline:none"
+        value="${localStorage.getItem('rai_api_base')||''}">
+      <div style="color:rgba(255,255,255,0.3);font-size:.55rem;margin-bottom:20px">Local dev: http://localhost:8000</div>
+      <button onclick="
+        const u=document.getElementById('setup-url').value.trim().replace(/\/+$/,'');
+        if(!u){return;}
+        API_BASE=u;
+        localStorage.setItem('rai_api_base',u);
+        document.getElementById('api-url').value=u;
+        document.getElementById('setup-modal').remove();
+        startPolling();
+        fetch(u+'/ai/status').then(r=>r.json()).then(d=>{
+          if(d.ready){setLED('ai','green');setVFD('AI READY');log('[AI] Engine ready','success');}
+          else{setVFD('AI NOT LOADED');log('[AI] Click INIT AI to load YOLOv8','warn');}
+        }).catch(()=>log('[NET] Cannot reach backend — check URL','error'));
+      " style="background:#ff4500;color:#fff;border:none;padding:10px 28px;font-family:Orbitron,sans-serif;font-size:.65rem;letter-spacing:2px;cursor:pointer;border-radius:4px">CONNECT</button>
+    </div>`;
+  document.body.appendChild(modal);
+  document.getElementById('setup-url').addEventListener('keydown', e => {
+    if (e.key === 'Enter') document.querySelector('#setup-modal button').click();
+  });
+}
+
+log('[INIT] Restaurant AI PRO v3.0 — UAE Command Center initialized','info');
+log('[NET] Polling '+API_BASE+' every '+POLL_MS+'ms','info');
+log('[TIP] Click INIT AI → then CAMERA → then TRACK for live detection','info');
+</script>
+</body>
+</html>

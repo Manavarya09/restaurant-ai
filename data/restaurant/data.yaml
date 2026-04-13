@@ -1,0 +1,12 @@
+path: /Users/manavaryasingh/restaurant-ai/data/restaurant
+train: images/train
+val: images/val
+test: images/test
+
+nc: 5
+names:
+  0: person
+  1: staff
+  2: customer
+  3: group
+  4: queue
